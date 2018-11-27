@@ -1,0 +1,29 @@
+# Language used
+language: python
+
+# Python version used
+python:
+  - "3.6"
+
+#Make some migrations
+before_script:
+ - psql -c "CREATE DATABASE ah_code_titans;" -U postgres
+ - python manage.py makemigrations
+ - python manage.py migrate
+
+# Packages to be installed
+install:
+  - pip install -r requirements.txt
+  - pip install coveralls
+
+# Command to start postgresql
+services:
+  - postgresql
+
+script:
+  #Command to run tests
+  - coverage run --source=. manage.py test
+  - coverage report
+after_success:
+   #send coverage to coveralls
+   coveralls
