@@ -27,3 +27,7 @@ script:
 after_success:
    #send coverage to coveralls
    coveralls
+
+# slack notifications configuration
+notifications:
+    slack: andela:LTXqtmTsixouhMtsFDOPnaY5

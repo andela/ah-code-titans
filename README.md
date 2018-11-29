@@ -2,7 +2,6 @@
 [![Coverage Status](https://coveralls.io/repos/github/andela/ah-code-titans/badge.svg?branch=develop)](https://coveralls.io/github/andela/ah-code-titans?branch=develop)
 
 Authors Haven - A Social platform for the creative at heart.
-=======
 
 ## Vision
 Create a community of like minded authors to foster inspiration and innovation
