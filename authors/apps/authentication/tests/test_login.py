@@ -61,9 +61,13 @@ class TestLogin(TestConfiguration):
 
     def test_login(self):
         """ test login success """
-
         response = self.login(self.user)
         self.assertEqual(
             response.status_code,
             status.HTTP_200_OK
+        )
+        self.assertIn(
+            'token',
+            response.data,
+            "Response body does not contain access token!"
         )

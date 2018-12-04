@@ -91,21 +91,19 @@ class TestRegister(TestConfiguration):
 
     def test_register_user(self):
         """ test register user """
-
         response = self.register_user(self.new_user)
-
         self.assertEqual(
             response.status_code,
             status.HTTP_201_CREATED
         )
-        self.assertEqual(
+        self.assertIn(
+            'token',
             response.data,
-            {'email': f'{self.new_user["user"]["email"]}',
-             'username': f'{self.new_user["user"]["username"]}'}
+            "Response body does not contain access token!"
         )
 
     def test_existing_email(self):
-        """ test register user """
+        """ test register with existing user email """
         self.new_user["user"]["email"] = self.user["user"]["email"]
 
         response = self.register_user(self.new_user)
@@ -115,7 +113,7 @@ class TestRegister(TestConfiguration):
         )
 
     def test_existing_username(self):
-        """ test register user """
+        """ test register with existing username """
         self.new_user["user"]["username"] = self.user["user"]["username"]
         response = self.register_user(self.new_user)
         self.assertEqual(
