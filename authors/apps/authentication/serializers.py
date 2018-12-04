@@ -251,3 +251,52 @@ class UserSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+
+
+class SocialAuthenticationSerializer(serializers.Serializer):
+    """
+    This handles the serialization of the social login details required to
+    authenticate a user using social media resource APIs.
+    """
+
+    provider = serializers.CharField(
+        max_length=255,
+        required=True
+    )
+    authentication_token = serializers.CharField(
+        max_length=1024,
+        required=True,
+        trim_whitespace=True
+    )
+    authentication_token_secret = serializers.CharField(
+        max_length=1024,
+        required=True,
+        trim_whitespace=True
+    )
+
+    class Meta:
+        fields = [
+            'provider',
+            'authentication_token',
+            'authentication_token_secret'
+        ]
+
+    def validate_provider(self, value):
+        """
+        This function makes sure that the endpoint user only provides the
+        specified providers in their request body.
+        """
+        allowed_providers = [
+            'facebook',
+            'twitter',
+            'google-oauth2'
+        ]
+
+        # Tests if the provided 'provider' value exists in the allowed providers list
+        if value not in allowed_providers:
+            raise serializers.ValidationError(
+                "Invalid provider, please select amongst the following: {}!".format(
+                    [provider + ' ' for provider in allowed_providers]
+                ))
+
+        return value

@@ -5,20 +5,23 @@ language: python
 python:
   - "3.6"
 
-#Make some migrations
-before_script:
- - psql -c "CREATE DATABASE ah_code_titans;" -U postgres
- - python manage.py makemigrations
- - python manage.py migrate
-
-# Packages to be installed
-install:
-  - pip install -r requirements.txt
-  - pip install coveralls
-
 # Command to start postgresql
 services:
   - postgresql
+
+addons:
+  postgresql: "9.6"
+
+# Packages to be installed
+install:
+  - psql -c "CREATE DATABASE ah_code_titans;" -U postgres
+  - pip install -r requirements.txt
+  - pip install coveralls
+
+#Make some migrations
+before_script:
+  - python manage.py makemigrations
+  - python manage.py migrate
 
 script:
   #Command to run tests

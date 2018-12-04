@@ -22,5 +22,4 @@ class Authentication(JSONWebTokenAuthentication):
             'nbf': datetime.datetime.utcnow() + datetime.timedelta(minutes=-5),
             'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60)
         }, secret_key)
-        token = str(token, 'utf-8')
-        return token
+        return str(token, 'utf-8')

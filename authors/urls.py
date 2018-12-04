@@ -17,12 +17,12 @@ from django.urls import path, include
 from django.contrib import admin
 from rest_framework_swagger.views import get_swagger_view
 
-
 # produce a schema view
 schema_view = get_swagger_view(title='Authors Haven Code Titans API')
 
 urlpatterns = [
+    path('', schema_view, name="main-view"),
     path('admin/', admin.site.urls),
     path('api/', include('authors.apps.authentication.urls')),
-    path('', schema_view, name="main-view")
+    path('oauth/', include('social_django.urls', namespace='social'))
 ]
