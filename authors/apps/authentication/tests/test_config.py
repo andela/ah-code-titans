@@ -31,3 +31,8 @@ class TestConfiguration(TestCase):
                 "password": "johndoe.T5",
             }
         }
+        self.registered_user_email = {
+            "user": {
+                "email": "johndoe@email.com"
+            }
+        }

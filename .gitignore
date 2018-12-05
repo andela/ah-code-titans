@@ -96,3 +96,5 @@ db.sqlite3
 
 # IDE files
 .vscode/
+.DS_Store
+sendgrid.env

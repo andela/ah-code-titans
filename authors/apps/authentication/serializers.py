@@ -60,6 +60,9 @@ class RegistrationSerializer(serializers.ModelSerializer):
         ]
     )
 
+    # token fields
+    token = serializers.SerializerMethodField()
+    refresh_token = serializers.SerializerMethodField()
     # Ensure the username has at least 4 characters
     # and does not contain numbers only.
     def validate_username(self, data):
@@ -251,3 +254,41 @@ class UserSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+
+
+class ResetSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    token = serializers.CharField(max_length=255, read_only=True)
+
+    # List the fields that should b
+
+    def validate(self, data):
+        """
+        Validate the email entered by the user that requests to reset account password
+        """
+        email = data.get('email', None)
+
+        # Check if user just posted an empty object.
+        # Respond with error message, with description that email is required.
+        if email is None:
+            raise serializers.ValidationError(
+                'An email address is required to send request.'
+            )
+
+        # Check if a user is registered with the entered email.
+        # If a match is found, retrieve the instance. Use the instance to generate
+        # a token to be used to allow user to change password. Return the email and token
+        if User.objects.filter(email=email).exists():
+            user = User.objects.get(email=email)
+            token = Authentication.generate_jwt_token(
+                user={'username': user.username},
+                refresh_token=False)
+            return {
+                "email": email,
+                "token": token
+            }
+
+        # If email is not associated with any account raise an error
+        raise serializers.ValidationError(
+            'The email address is not registered!. Please enter the email to your account.'
+        )
