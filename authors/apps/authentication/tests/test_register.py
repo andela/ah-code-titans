@@ -70,9 +70,9 @@ class TestRegister(TestConfiguration):
             response.status_code,
             status.HTTP_400_BAD_REQUEST
         )
-        self.assertEqual(
-            response.data["errors"]["password"][0],
-            "Ensure this field has at least 8 characters."
+        self.assertIn(
+            "password with at least 8 characters",
+            response.data["errors"]["password"][0]
         )
 
     def test_empty_password(self):
@@ -89,23 +89,77 @@ class TestRegister(TestConfiguration):
             "This field may not be blank."
         )
 
-    def test_register_user(self):
-        """ test register user """
-
+    def test_uppercase_password(self):
+        """ test that the password contains an uppercase letter """
+        self.new_user["user"]["password"] = 'codetitans32'
         response = self.register_user(self.new_user)
 
         self.assertEqual(
             response.status_code,
+            status.HTTP_400_BAD_REQUEST
+        )
+        self.assertIn(
+            "at least one number, an uppercase or lowercase letter",
+            response.data["errors"]["password"][0]
+        )
+
+    def test_lowercase_password(self):
+        """ test that the password contains an lowercase letter """
+        self.new_user["user"]["password"] = 'CODETITANS32'
+        response = self.register_user(self.new_user)
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_400_BAD_REQUEST
+        )
+        self.assertIn(
+            "at least one number, an uppercase or lowercase letter",
+            response.data["errors"]["password"][0]
+        )
+
+    def test_special_character_password(self):
+        """ test that the password contains a special character """
+        self.new_user["user"]["password"] = 'Codetitans32'
+        response = self.register_user(self.new_user)
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_400_BAD_REQUEST
+        )
+        self.assertIn(
+            "lowercase letter or one special character",
+            response.data["errors"]["password"][0]
+        )
+
+    def test_number_in_password(self):
+        """ test that the password contains a number """
+        self.new_user["user"]["password"] = 'Codetitans@!'
+        response = self.register_user(self.new_user)
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_400_BAD_REQUEST
+        )
+        self.assertIn(
+            "Password should have at least one number",
+            response.data["errors"]["password"][0]
+        )
+
+    def test_register_user(self):
+        """ test register user """
+        response = self.register_user(self.new_user)
+        self.assertEqual(
+            response.status_code,
             status.HTTP_201_CREATED
         )
-        self.assertEqual(
+        self.assertIn(
+            'token',
             response.data,
-            {'email': f'{self.new_user["user"]["email"]}',
-             'username': f'{self.new_user["user"]["username"]}'}
+            "Response body does not contain access token!"
         )
 
     def test_existing_email(self):
-        """ test register user """
+        """ test register with existing user email """
         self.new_user["user"]["email"] = self.user["user"]["email"]
 
         response = self.register_user(self.new_user)
@@ -115,7 +169,7 @@ class TestRegister(TestConfiguration):
         )
 
     def test_existing_username(self):
-        """ test register user """
+        """ test register with existing username """
         self.new_user["user"]["username"] = self.user["user"]["username"]
         response = self.register_user(self.new_user)
         self.assertEqual(
