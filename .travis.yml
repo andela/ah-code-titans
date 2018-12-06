@@ -17,6 +17,9 @@ before_script:
  - psql -c "CREATE DATABASE ah_code_titans;" -U postgres
  - python manage.py makemigrations
  - python manage.py migrate
+ - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+ - chmod +x ./cc-test-reporter
+
 
 # Packages to be installed
 install:
@@ -28,9 +31,13 @@ script:
   - coverage run --source=. manage.py test
   - coverage report
 
+after_script:
+  - coverage xml
+  - if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT; fi
 after_success:
    #send coverage to coveralls
-   coveralls
+   - coveralls
+
 
 # slack notifications configuration
 notifications:
