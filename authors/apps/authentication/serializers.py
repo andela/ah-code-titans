@@ -4,7 +4,10 @@ from django.contrib.auth import authenticate
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
+# local imports
 from .models import User
+
+from .backends import Authentication
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -71,6 +74,9 @@ class RegistrationSerializer(serializers.ModelSerializer):
                 'and should not contain numbers only.'
                 )
         return data
+    # token fields
+    token = serializers.SerializerMethodField()
+    refresh_token = serializers.SerializerMethodField()
 
     # The client should not be able to send a token along with a registration
     # request. Making `token` read-only handles that for us.
@@ -79,17 +85,65 @@ class RegistrationSerializer(serializers.ModelSerializer):
         model = User
         # List all of the fields that could possibly be included in a request
         # or response, including fields specified explicitly above.
-        fields = ['email', 'username', 'password']
+        fields = ['email', 'username', 'password', 'token', 'refresh_token']
 
     def create(self, validated_data):
         # Use the `create_user` method we wrote earlier to create a new user.
         return User.objects.create_user(**validated_data)
+
+    def get_token(self, obj):
+        """ Get user access token
+        :args
+        obj - UserModel instance
+        """
+        return Authentication.generate_jwt_token(
+            user=obj.json(),
+            refresh_token=False
+        )
+
+    def get_refresh_token(self, obj):
+        """ Get user refresh_token
+        :args
+        obj - UserModel instance
+        """
+        return Authentication.generate_jwt_token(
+            user=obj.json(),
+            refresh_token=True
+        )
 
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.CharField(max_length=255)
     username = serializers.CharField(max_length=255, read_only=True)
     password = serializers.CharField(max_length=128, write_only=True)
+
+    # token fields
+    token = serializers.SerializerMethodField()
+    refresh_token = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ['email', 'username', 'password', 'token', 'refresh_token']
+
+    def get_token(self, obj):
+        """ get user access token
+        :args
+        obj - UserModel instance
+        """
+        return Authentication.generate_jwt_token(
+            user=obj,
+            refresh_token=False
+        )
+
+    def get_refresh_token(self, obj):
+        """ get user refresh_token
+        :args
+        obj - UserModel instance
+        """
+        return Authentication.generate_jwt_token(
+            user=obj,
+            refresh_token=True
+        )
 
     def validate(self, data):
         # The `validate` method is where we make sure that the current

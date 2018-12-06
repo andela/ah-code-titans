@@ -117,3 +117,14 @@ class User(AbstractBaseUser, PermissionsMixin):
         the user's real name, we return their username instead.
         """
         return self.username
+
+    def json(self):
+        """
+        This function converts the model's data into a dict object that can
+        be converted into a json string.
+        """
+
+        return {
+            "username": self.username,
+            "email": self.email
+        }

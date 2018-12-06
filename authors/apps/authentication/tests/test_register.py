@@ -106,8 +106,8 @@ class TestRegister(TestConfiguration):
     def test_lowercase_password(self):
         """ test that the password contains an lowercase letter """
         self.new_user["user"]["password"] = 'CODETITANS32'
+        
         response = self.register_user(self.new_user)
-
         self.assertEqual(
             response.status_code,
             status.HTTP_400_BAD_REQUEST
