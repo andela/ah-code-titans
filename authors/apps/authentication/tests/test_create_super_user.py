@@ -11,6 +11,6 @@ class TestRegister(TestConfiguration):
             'myemail@test.com',
             'password'
         )
-        self.assertEqual(my_admin.is_active, True)
+        self.assertEqual(my_admin.is_active, False)
         self.assertEqual(my_admin.is_staff, True)
         self.assertEqual(my_admin.is_superuser, True)

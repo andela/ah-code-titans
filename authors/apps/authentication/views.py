@@ -1,19 +1,23 @@
 from rest_framework import status
-from rest_framework.generics import (
-    RetrieveUpdateAPIView, CreateAPIView, UpdateAPIView
-)
+from rest_framework.generics import (RetrieveUpdateAPIView, CreateAPIView, UpdateAPIView, ListAPIView)
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from django.core.mail import send_mail
 
 from .renderers import UserJSONRenderer
+from .token import account_activation_token
+from .models import User
 from .serializers import (
     LoginSerializer, RegistrationSerializer, UserSerializer,
     ResetSerializer
 )
 from ...settings import EMAIL_HOST_USER
 from .backends import Authentication
-from .models import User
+from django.http import HttpResponse
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.urls import reverse
+from django.utils.encoding import force_bytes
 
 
 class RegistrationAPIView(CreateAPIView):
@@ -30,11 +34,51 @@ class RegistrationAPIView(CreateAPIView):
         serializer = self.serializer_class(data=user)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        user_details = User.objects.get(username=user['username'])
+
+        subject = "VERIFY YOUR ACCOUNT"
+        uid = urlsafe_base64_encode(force_bytes(user_details.id)).decode()
+        token = account_activation_token.make_token(user)
+        route = "{}".format(
+            reverse('activate_account', kwargs={
+                'pk': uid,
+                'token': token
+            })
+        )
+        activation_link = (
+            "{scheme}://{host}{path}".format(
+                scheme=request.scheme,
+                host=request.get_host(),
+                path=route,
+            )
+        )
+        message = (
+            "Hi {username},\n\n"
+            "We are glad you have decided to join us. "
+            "Please click the link below to activate you account.\n\n"
+            "{activation_link}".format(
+                username=user.get('username'),
+                activation_link=activation_link,
+            )
+        )
+        from_email = EMAIL_HOST_USER
+        recipient = user.get('email')
+        to_list = [recipient, EMAIL_HOST_USER]
+        send_mail(subject, message, from_email, to_list)
+        user_data = serializer.data
+        response_message = {
+            "message": (
+                "You have been registered successfully "
+                "please check your email to activate your account"
+            ),
+            "user_data": user_data
+        }
+
+        return Response(response_message, status=status.HTTP_201_CREATED)
 
 
 class LoginAPIView(CreateAPIView):
-    permission_classes = (AllowAny,)
     renderer_classes = (UserJSONRenderer,)
     serializer_class = LoginSerializer
 
@@ -94,11 +138,8 @@ class RequestResetAPIView(CreateAPIView):
 
         # Format the email
         host = request.get_host()
-        if request.is_secure():
-            protocol = "https://"
-        else:
-            protocol = "http://"
-        resetpage = protocol + host + '/api/resetpassword/' + token
+        protocol = request.scheme
+        resetpage = protocol + '://' + host + '/api/resetpassword/' + token
         subject = "Password Reset Request"
         message = (
             "Hello {user_data} you have requested for a password reset.\n"
@@ -153,3 +194,31 @@ class ResetPasswordAPIView(UpdateAPIView):
         return Response(
             {"message": "Your password was successfully changed"},
             status=status.HTTP_200_OK)
+
+
+class ActivateAccountAPIView(ListAPIView):
+    permission_classes = (AllowAny,)
+    renderer_classes = (UserJSONRenderer,)
+    serializer_class = UserSerializer
+
+    def get(self, request, **kwargs):
+
+        try:
+            uid64 = kwargs.get('pk')
+            token = kwargs.get('token')
+            uid = urlsafe_base64_decode(uid64).decode()
+            account_details = User.objects.get(pk=uid)
+        except (ValueError, TypeError, User.DoesNotExist):
+            account_details = None
+        finally:
+            valid_token = default_token_generator.check_token(
+                account_details, token=token
+            )
+            if account_details is not None and valid_token is not None:
+                account_details.is_active = True
+                account_details.save()
+                return HttpResponse(
+                    '{} your account has been activated '
+                    'successfully.'.format(account_details.username), status.HTTP_201_CREATED
+                )
+        return HttpResponse('Invalid activation link')

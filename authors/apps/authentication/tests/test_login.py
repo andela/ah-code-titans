@@ -59,15 +59,14 @@ class TestLogin(TestConfiguration):
             "This field may not be blank."
         )
 
-    def test_login(self):
-        """ test login success """
+    def test_login_with_inactive_account(self):
+        """Test login with an inactive account"""
         response = self.login(self.user)
         self.assertEqual(
             response.status_code,
-            status.HTTP_200_OK
+            status.HTTP_400_BAD_REQUEST
         )
         self.assertIn(
-            'token',
-            response.data,
-            "Response body does not contain access token!"
+            response.data['errors']['error'][0][:],
+            "A user with this email and password was not found."
         )

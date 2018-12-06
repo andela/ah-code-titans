@@ -1,5 +1,9 @@
 from rest_framework import status
 from django.urls import reverse
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
+from ..models import User
+from ..token import account_activation_token
 
 # local import
 from .test_config import TestConfiguration
@@ -15,6 +19,20 @@ class TestRegister(TestConfiguration):
             data,
             content_type='application/json'
         )
+
+    def test_registration_email_verification(self):
+
+        response_details = self.register_user(self.new_user)
+        user_details = User.objects.get(username=self.new_user['user']['username'])
+        pk = urlsafe_base64_encode(force_bytes(user_details.id)).decode()
+        token = account_activation_token.make_token(self.new_user)
+
+        activate_url = 'http://localhost:8000/api/activate/account/{pk}/{token}'.format(pk=pk, token=token)
+        response = self.client.get(
+            activate_url,
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_empty_username(self):
         """ test empty username """
@@ -151,11 +169,6 @@ class TestRegister(TestConfiguration):
         self.assertEqual(
             response.status_code,
             status.HTTP_201_CREATED
-        )
-        self.assertIn(
-            'token',
-            response.data,
-            "Response body does not contain access token!"
         )
 
     def test_existing_email(self):
