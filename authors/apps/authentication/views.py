@@ -67,6 +67,7 @@ class RegistrationAPIView(CreateAPIView):
         to_list = [recipient]
         send_mail(subject, message, from_email, to_list)
         user_data = serializer.data
+
         response_message = {
             "message": (
                 "You have been registered successfully "
@@ -89,9 +90,10 @@ class LoginAPIView(CreateAPIView):
         # the registration endpoint. This is because we don't actually have
         # anything to save. Instead, the `validate` method on our serializer
         # handles everything we need.
+        
         serializer = self.serializer_class(data=user)
         serializer.is_valid(raise_exception=True)
-
+        
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

@@ -28,5 +28,6 @@ urlpatterns = [
     path('api/', include('authors.apps.profiles.urls')),
     path('oauth/', include('social_django.urls', namespace='social')),
     path('home', GeneralRoutes.home, name="home"),
-    path('privacy', GeneralRoutes.privacy, name="privacy")
+    path('privacy', GeneralRoutes.privacy, name="privacy"),
+    path('api/', include('authors.apps.articles.urls'))
 ]

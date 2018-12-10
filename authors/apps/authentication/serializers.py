@@ -11,7 +11,7 @@ from .backends import Authentication
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
-    """Serializers registration requests and creates a new user."""
+    """Serializes registration requests and creates a new user."""
 
     # Ensure passwords are at least 8 characters long, no longer than 128
     # characters, and can not be read by the client.
@@ -29,7 +29,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
     # Ensure the password has alphanumeric characters
     def validate_password(self, data):
         """
-        validator function to check for valid password.
+        Validator function to check for valid password.
         """
         # Ensure the password contains at least one number,
         # at least one uppercase letter
@@ -139,7 +139,7 @@ class LoginSerializer(serializers.Serializer):
         )
 
     def get_refresh_token(self, obj):
-        """ get user refresh_token
+        """ get user refresh token
         :args
         obj - UserModel instance
         """

@@ -3,7 +3,7 @@ from django.urls import reverse
 from rest_framework import status
 
 # local import
-from .test_config import TestConfiguration
+from authors.base_test_config import TestConfiguration
 
 test_token = None
 

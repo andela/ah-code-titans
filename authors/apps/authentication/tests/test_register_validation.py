@@ -2,7 +2,7 @@ from rest_framework import status
 from django.urls import reverse
 
 # local import
-from .test_config import TestConfiguration
+from authors.base_test_config import TestConfiguration
 
 
 class TestRegister(TestConfiguration):
@@ -45,4 +45,3 @@ class TestRegister(TestConfiguration):
                 "and should not contain numbers only",
                 response.data["errors"]["username"][0]
             )
-
