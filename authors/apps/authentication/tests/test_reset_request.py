@@ -3,7 +3,7 @@ from django.urls import reverse
 from rest_framework import status
 
 # local import
-from .test_config import TestConfiguration
+from authors.base_test_config import TestConfiguration
 
 
 class TestReset(TestConfiguration):
@@ -41,7 +41,7 @@ class TestReset(TestConfiguration):
 
         self.assertEqual(
             response.json(),
-            {'errors': {'email': ['This field may not be blank.']}})
+            {"errors": {'email': ['This field may not be blank.']}})
 
     def test_user_enter_email_no_at(self):
         response = self.submit_email(self.user_email[1])
@@ -52,7 +52,7 @@ class TestReset(TestConfiguration):
 
         self.assertEqual(
             response.json(),
-            {'errors': {'email': ['Enter a valid email address.']}})
+            {"errors": {'email': ['Enter a valid email address.']}})
 
     def test_user_enter_email_no_ending(self):
         response = self.submit_email(self.user_email[2])
@@ -63,7 +63,7 @@ class TestReset(TestConfiguration):
 
         self.assertEqual(
             response.json(),
-            {'errors': {'email': ['Enter a valid email address.']}})
+            {"errors": {'email': ['Enter a valid email address.']}})
 
     def test_user_enter_correct_mail(self):
         response = self.submit_email(self.registered_user_email)
