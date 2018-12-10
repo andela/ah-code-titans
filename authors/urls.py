@@ -25,6 +25,7 @@ urlpatterns = [
     path('', schema_view, name="main-view"),
     path('admin/', admin.site.urls),
     path('api/', include('authors.apps.authentication.urls')),
+    path('api/', include('authors.apps.profiles.urls')),
     path('oauth/', include('social_django.urls', namespace='social')),
     path('home', GeneralRoutes.home, name="home"),
     path('privacy', GeneralRoutes.privacy, name="privacy")

@@ -64,7 +64,7 @@ class RegistrationAPIView(CreateAPIView):
         )
         from_email = EMAIL_HOST_USER
         recipient = user.get('email')
-        to_list = [recipient, EMAIL_HOST_USER]
+        to_list = [recipient]
         send_mail(subject, message, from_email, to_list)
         user_data = serializer.data
         response_message = {
