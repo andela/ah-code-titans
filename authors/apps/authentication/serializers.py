@@ -65,6 +65,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
     refresh_token = serializers.SerializerMethodField()
     # Ensure the username has at least 4 characters
     # and does not contain numbers only.
+
     def validate_username(self, data):
         """
         Validator function to check for valid username
@@ -75,7 +76,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Username should be at least 4 characters long '
                 'and should not contain numbers only.'
-                )
+            )
         return data
     # token fields
     token = serializers.SerializerMethodField()
@@ -176,7 +177,6 @@ class LoginSerializer(serializers.Serializer):
         # we pass `email` as the `username` value. Remember that, in our User
         # model, we set `USERNAME_FIELD` as `email`.
         user = authenticate(username=email, password=password)
-
         # If no user was found matching this email/password combination then
         # `authenticate` will return `None`. Raise an exception in this case.
         if user is None:

@@ -57,6 +57,7 @@ local_settings.py
 **/migrations/*
 !**/migrations/__init__.py
 
+
 # Flask stuff:
 instance/
 .webassets-cache

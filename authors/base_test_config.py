@@ -97,7 +97,6 @@ class TestConfiguration(TestCase):
         # This generates a new article with the author of the article
         # as the user we have just created. We store it in this variable,
         # so we have access to the article details in the test cases.
-
         cls.stored_articles = ArticleFactory.create_batch(
             5,
             author=user

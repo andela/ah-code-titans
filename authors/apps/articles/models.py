@@ -38,19 +38,32 @@ class Article(models.Model):
 
         super(Article, self).save(*args, **kwargs)
 
+    def json(self):
+        return {
+            "id": self.id,
+            "title": self.title,
+            "description": self.description,
+            "body": self.body,
+            "author": self.author.json(),
+            "created_at": self.createdAt.strftime('%Y-%m-%d %H:%M:%S'),
+            "updated_at": self.updatedAt.strftime('%Y-%m-%d %H:%M:%S'),
+        }
+
 
 class Comment(models.Model):
 
-    # This is the foreign ket that relates this comment to the article it is commenting on 
-    article = models.ForeignKey(Article, verbose_name="comment_article", on_delete=models.CASCADE)
+    # This is the foreign ket that relates this comment to the article it is commenting on
+    article = models.ForeignKey(
+        Article, verbose_name="comment_article", on_delete=models.CASCADE)
     # article = models.ForeignKey(Article, on_delete=models.CASCADE)
 
     # This is the foreign key that relates this comment to the author, which
     # is a user registered to the app.
-    user = models.ForeignKey(User, verbose_name="comment_user", on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        User, verbose_name="comment_user", on_delete=models.CASCADE)
 
     # This is the id of the parent comment that this comment replies to.
-    # This is optional and set to 0 as the default. This is to create a 
+    # This is optional and set to 0 as the default. This is to create a
     # threaded comment system.
     parent = models.IntegerField(default=0)
 

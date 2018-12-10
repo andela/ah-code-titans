@@ -1,6 +1,5 @@
 from django.test import TestCase
 
-
 class TestConfig(TestCase):
     """ Configurations for all tests"""
 

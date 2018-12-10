@@ -1,11 +1,16 @@
-from authors.apps.authentication.models import User
-from authors.response import RESPONSE
 from rest_framework import serializers
-
 from .models import Article, Comment
 
+from authors.response import RESPONSE
+from authors.apps.authentication.models import User
 
-class ArticleSerializer(serializers.ModelSerializer):
+
+class ArticlesSerializer(serializers.ModelSerializer):
+    """
+    :param HiddenField does not take an input from the user but instead from a callable or default value.
+    its useful especially when we have a unique constraint.
+    :CurrentUserDefault gets the request context of the the current user
+    """
     author = serializers.HiddenField(
         default=serializers.CurrentUserDefault()
     )
@@ -14,6 +19,17 @@ class ArticleSerializer(serializers.ModelSerializer):
         model = Article
         fields = ("title", "description", "body", "author")
 
+    def validate_user_permissions(self, request, data):
+        """
+        :param request and data
+        """
+        if request.user.id != data.author_id:
+
+            return Response({
+                "message": "you are not allowed to perform this action"
+            },
+                status=status.HTTP_403_FORBIDDEN
+            )
 
 class CommentSerializer(serializers.ModelSerializer):
     """

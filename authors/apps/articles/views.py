@@ -1,38 +1,102 @@
+from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, AllowAny
 
 from django.shortcuts import get_object_or_404
 
-from .serializers import CommentSerializer, ArticleSerializer
+from .serializers import CommentSerializer, ArticlesSerializer
 from .models import Comment, Article
 from authors.response import RESPONSE
 
-# Create your views here.
 
-
-class ArticlesViews(APIView):
+class ArticlesViews(CreateAPIView):
     """
     create a new article
     """
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request):
+        """
+        post a new article
+        :param request
+        we are creating a  new request context then passing the context in our
+        case the user that is creating an article along
+        with the data in our serializer class
+        """
         data = request.data.get("article", {})
-        serializer = ArticleSerializer(data=data)
-
+        context = {'request': request}
+        serializer = ArticlesSerializer(data=data, context=context)
         if serializer.is_valid():
-            serializer.save()
-            return Response(
-                {
-                    "message": "Article created successfully"
-                }, status.HTTP_201_CREATED
-            )
+            article_data = serializer.save()
+            message = {
+                "message": "article created successfully",
+                "slug": article_data.slug
+            }
+            return Response(message, status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
+
+class ArticleView(RetrieveUpdateDestroyAPIView):
+    """
+    get, update, delete a specific article view
+    """
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def put(self, request, slug):
+        """
+        update a specific article
+        :param slug
+        an author can only update his/her article
+        """
+        article = get_object_or_404(Article.objects.all(), slug=slug)
+        ArticlesSerializer().validate_user_permissions(request, article)
+        data = request.data.get("article")
+        serializer = ArticlesSerializer(
+            instance=article, data=data, partial=True)
+        serializer.is_valid()
+        serializer.save()
+        return Response({
+            "message": "article updated successfully"
+        },
+            status=status.HTTP_200_OK
         )
+
+    def delete(self, request, slug):
+        """
+        delete a specific article
+        :param slug
+        an author can only delete his/her article
+        """
+        article = Article.objects.filter(slug=slug)
+
+        if not article:
+            return Response({"Message": f"article {slug} not found"}, status=status.HTTP_404_NOT_FOUND)
+        if request.user.id != article[0].author_id:
+            return Response({
+                "message": "you are not allowed to perform this action"
+            },
+                status=status.HTTP_403_FORBIDDEN
+            )
+        article[0].delete()
+        return Response({"article": "deleted successfully"}, status=status.HTTP_200_OK)
+
+
+class GetArticles(ListAPIView):
+    """
+    get all articles views
+    """
+    permission_classes = (AllowAny,)
+
+    def get(self, request):
+        articles = Article.objects.all()
+        if articles:
+            return Response({
+                "articles": [article.json() for article in articles]
+            }, status.HTTP_200_OK
+            )
+        return Response({"message": "There are no articles currently"}, status.HTTP_404_NOT_FOUND)
 
 
 class CommentsView(generics.ListCreateAPIView):

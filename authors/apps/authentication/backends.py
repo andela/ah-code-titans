@@ -1,10 +1,9 @@
-import datetime
-
 import jwt
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from rest_framework import exceptions
+import datetime
 from rest_framework.authentication import TokenAuthentication
+from rest_framework import exceptions
 
 """Configure JWT Here"""
 
@@ -28,25 +27,13 @@ class Authentication(TokenAuthentication):
         token = str(token, 'utf-8')
         return token
 
-    def authenticate_credentials(self, key):
-
-        try:
-            payload = jwt.decode(key, secret_key)
-            user = get_user_model().objects.get(username=payload["username"])
-
-        except jwt.ExpiredSignatureError:
-            raise exceptions.AuthenticationFailed(
-                'Token has expired please request for another'
-            )
-
-        return (user, payload)
-
     @staticmethod
     def decode_jwt_token(token):
         try:
             user_info = jwt.decode(token, secret_key)
         except jwt.ExpiredSignatureError:
-            raise exceptions.AuthenticationFailed('Token has expired please request for another')
+            raise exceptions.AuthenticationFailed(
+                'Token has expired please request for another')
         return user_info
 
     def authenticate_credentials(self, key):
@@ -54,5 +41,6 @@ class Authentication(TokenAuthentication):
             payload = jwt.decode(key, secret_key)
             user = get_user_model().objects.get(username=payload["username"])
         except jwt.ExpiredSignatureError:
-            raise exceptions.AuthenticationFailed('Token has expired please request for another')
+            raise exceptions.AuthenticationFailed(
+                'Token has expired please request for another')
         return (user, payload)
