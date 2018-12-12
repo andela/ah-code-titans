@@ -1,6 +1,6 @@
 
 from rest_framework import serializers
-
+from ..followers.models import Follower
 
 from .models import Profile
 
@@ -11,12 +11,20 @@ class GetProfileSerializer(serializers.ModelSerializer):
     """
 
     username = serializers.CharField(source='user.username')
+    following = serializers.SerializerMethodField()
 
     class Meta:
         model = Profile
 
-        fields = ('username', 'bio', 'image', 'company', 'website', 'location', 'phone')
+        fields = ('username', 'bio', 'image', 'company', 'website', 'location', 'phone', 'following')
         read_only_fields = ("created_at", "updated_at")
+
+    def get_following(self, username):
+        request = self.context.get('request')
+        profile_owner = username.id
+        user = request.user.id
+        following = Follower.objects.filter(user=user, followed=profile_owner).exists()
+        return following
 
 
 class UpdateProfileSerializer(serializers.ModelSerializer):

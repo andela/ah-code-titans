@@ -16,6 +16,7 @@ class TestConfiguration(TestCase):
 
     def setUp(self):
         """ Configurations for test cases """
+        
         self.reg_user = {
             "user": {
                 "email": "johndoe@email.com",

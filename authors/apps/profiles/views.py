@@ -28,9 +28,9 @@ class GetUserProfileView(RetrieveAPIView):
 
             raise NotFound('User profile not found')
 
-    def retrieve(self, request, username):
+    def retrieve(self, request, **kwargs):
         data = self.get_queryset()
-        serializer = self.serializer_class(data)
+        serializer = self.serializer_class(data, context={'request': request})
 
         return Response(serializer.data)
 
