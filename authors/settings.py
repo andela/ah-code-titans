@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'authors.apps.followers',
     'authors.apps.articles',
     'authors.apps.likedislike',
+    'authors.apps.rating'
 ]
 
 MIDDLEWARE = [
