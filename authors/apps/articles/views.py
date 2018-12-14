@@ -132,7 +132,7 @@ class CommentsView(generics.ListCreateAPIView):
         # This tries to fetch a list of reply comments for the specified comment,
         # from the database. If the comment id provided does not match any in
         # the database, an error 404 response is sent back to the API user.
-        comments = Comment.objects.filter(article__slug=article_slug)[
+        comments = Comment.objects.filter(article__slug=article_slug, parent=0)[
             offset:page_size]
 
         if not comments:

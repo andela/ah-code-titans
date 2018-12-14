@@ -56,10 +56,6 @@ coverage.xml
 local_settings.py
 **/migrations/*
 !**/migrations/__init__.py
-<<<<<<< HEAD
-=======
-
->>>>>>> a4b6455... # 161967130  CRUD articles endpoints (#21)
 
 # Flask stuff:
 instance/

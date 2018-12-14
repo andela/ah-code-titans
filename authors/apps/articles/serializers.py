@@ -15,7 +15,7 @@ class ArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
         fields = ("title", "description", "body", "author")
-        
+
     def validate_user_permissions(self, request, data):
         """
         :param request and data
@@ -27,7 +27,6 @@ class ArticleSerializer(serializers.ModelSerializer):
             },
                 status=status.HTTP_403_FORBIDDEN
             )
-
 
 class CommentSerializer(serializers.ModelSerializer):
     """

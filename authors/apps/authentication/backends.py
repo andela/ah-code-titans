@@ -38,7 +38,6 @@ class Authentication(TokenAuthentication):
             raise exceptions.AuthenticationFailed(
                 'Token has expired please request for another'
             )
-
         return (user, payload)
 
     @staticmethod
