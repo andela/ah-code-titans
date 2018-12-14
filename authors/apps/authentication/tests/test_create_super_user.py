@@ -1,5 +1,5 @@
 # local import
-from .test_config import TestConfiguration
+from authors.base_test_config import TestConfiguration
 from ..models import User
 
 

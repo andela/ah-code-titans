@@ -47,6 +47,9 @@ class ArticleLikeDislike(models.Model):
     vote = models.SmallIntegerField(verbose_name="likes", choices=VOTES)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    # The three lines below add a relationship to the ContentType Model.
+    # object_id refers to the Articles model
+    # content_type and content_object link the two models to the ContentType model.
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey()

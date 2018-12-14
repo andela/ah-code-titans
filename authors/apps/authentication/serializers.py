@@ -11,7 +11,7 @@ from .backends import Authentication
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
-    """Serializers registration requests and creates a new user."""
+    """Serializes registration requests and creates a new user."""
 
     # Ensure passwords are at least 8 characters long, no longer than 128
     # characters, and can not be read by the client.
@@ -29,7 +29,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
     # Ensure the password has alphanumeric characters
     def validate_password(self, data):
         """
-        validator function to check for valid password.
+        Validator function to check for valid password.
         """
         # Ensure the password contains at least one number,
         # at least one uppercase letter
@@ -65,6 +65,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
     refresh_token = serializers.SerializerMethodField()
     # Ensure the username has at least 4 characters
     # and does not contain numbers only.
+
     def validate_username(self, data):
         """
         Validator function to check for valid username
@@ -75,7 +76,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Username should be at least 4 characters long '
                 'and should not contain numbers only.'
-                )
+            )
         return data
     # token fields
     token = serializers.SerializerMethodField()
@@ -139,7 +140,7 @@ class LoginSerializer(serializers.Serializer):
         )
 
     def get_refresh_token(self, obj):
-        """ get user refresh_token
+        """ get user refresh token
         :args
         obj - UserModel instance
         """
@@ -176,7 +177,6 @@ class LoginSerializer(serializers.Serializer):
         # we pass `email` as the `username` value. Remember that, in our User
         # model, we set `USERNAME_FIELD` as `email`.
         user = authenticate(username=email, password=password)
-
         # If no user was found matching this email/password combination then
         # `authenticate` will return `None`. Raise an exception in this case.
         if user is None:
