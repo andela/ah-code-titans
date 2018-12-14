@@ -3,7 +3,7 @@ from django.urls import reverse
 from rest_framework import status
 
 # local import
-from .test_config import TestConfiguration
+from authors.base_test_config import TestConfiguration
 
 
 class TestLogin(TestConfiguration):
@@ -66,7 +66,8 @@ class TestLogin(TestConfiguration):
             response.status_code,
             status.HTTP_400_BAD_REQUEST
         )
+        
         self.assertIn(
-            response.data['errors']['error'][0][:],
+            response.data['errors']['error'][0],
             "A user with this email and password was not found."
         )

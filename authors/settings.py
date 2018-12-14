@@ -46,11 +46,14 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_swagger',
     'social_django',
+    'taggit',
 
     'authors.apps.authentication',
     'authors.apps.core',
     'authors.apps.profiles',
-    'authors.apps.followers'
+    'authors.apps.followers',
+    'authors.apps.articles',
+    'authors.apps.likedislike',
 ]
 
 MIDDLEWARE = [
@@ -153,7 +156,8 @@ SOCIAL_AUTH_TWITTER_PROFILE_EXTRA_PARAMS = {
 
 # Google App Keys
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY')
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv(
+    'SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET')
 
 SOCIAL_AUTH_GOOGLE_OAUTH_SCOPE = ['email', 'username']
 

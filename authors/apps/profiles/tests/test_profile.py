@@ -18,8 +18,7 @@ class TestProfile(TestConfiguration):
         """
 
         initial_count = Profile.objects.count()
-        self.register(
-            self.reg_user)  # register a new user
+        self.register(self.reg_user)  # register a new user
         new_count = Profile.objects.count()
         self.assertNotEqual(initial_count, new_count)
 
@@ -66,6 +65,7 @@ class TestProfile(TestConfiguration):
         self.email_verification(self.reg_user)
         res = self.login(self.log_user)
         username = self.invalid_username
+        
         token = res.data['token']
         url = '/api/profiles/' + username
         response = self.client.get(

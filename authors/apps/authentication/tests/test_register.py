@@ -6,7 +6,7 @@ from ..models import User
 from ..token import account_activation_token
 
 # local import
-from .test_config import TestConfiguration
+from authors.base_test_config import TestConfiguration
 
 
 class TestRegister(TestConfiguration):
@@ -23,6 +23,7 @@ class TestRegister(TestConfiguration):
     def test_registration_email_verification(self):
 
         response_details = self.register_user(self.new_user)
+
         user_details = User.objects.get(username=self.new_user['user']['username'])
         pk = urlsafe_base64_encode(force_bytes(user_details.id)).decode()
         token = account_activation_token.make_token(self.new_user)
@@ -40,6 +41,7 @@ class TestRegister(TestConfiguration):
         self.new_user["user"]["username"] = ''
 
         response = self.register_user(self.new_user)
+
         self.assertEqual(
             response.status_code,
             status.HTTP_400_BAD_REQUEST
@@ -176,6 +178,7 @@ class TestRegister(TestConfiguration):
         self.new_user["user"]["email"] = self.user["user"]["email"]
 
         response = self.register_user(self.new_user)
+        
         self.assertEqual(
             response.status_code,
             status.HTTP_400_BAD_REQUEST
@@ -185,6 +188,7 @@ class TestRegister(TestConfiguration):
         """ test register with existing username """
         self.new_user["user"]["username"] = self.user["user"]["username"]
         response = self.register_user(self.new_user)
+        
         self.assertEqual(
             response.status_code,
             status.HTTP_400_BAD_REQUEST
