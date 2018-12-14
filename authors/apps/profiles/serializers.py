@@ -1,32 +1,34 @@
 
-# import datetime
 from rest_framework import serializers
 
 
 from .models import Profile
 
 
-class ProfileSerializer(serializers.ModelSerializer):
+class GetProfileSerializer(serializers.ModelSerializer):
     """
     serializers for user profile upon user registration.
     """
 
-    bio = serializers.CharField(allow_blank=True, required=False)
-    image = serializers.SerializerMethodField()
-    company = serializers.CharField(allow_blank=True, required=False)
-    website = serializers.CharField(allow_blank=True, required=False)
-    location = serializers.CharField(allow_blank=True, required=False)
-    phone = serializers.CharField(allow_blank=True, required=False)
+    username = serializers.CharField(source='user.username')
+
+    class Meta:
+        model = Profile
+
+        fields = ('username', 'bio', 'image', 'company', 'website', 'location', 'phone')
+        read_only_fields = ("created_at", "updated_at")
+
+
+class UpdateProfileSerializer(serializers.ModelSerializer):
+    """
+    serializers for user profile upon user registration.
+    """
 
     class Meta:
         model = Profile
 
         fields = ('bio', 'image', 'company', 'website', 'location', 'phone')
-        read_only_fields = ("username", "created_at", "updated_at")
-
-    def get_image(self, obj):
-        if obj.image:
-            return obj.image
+        read_only_fields = ("created_at", "updated_at")
 
     def update(self, instance, validated_data):
         """

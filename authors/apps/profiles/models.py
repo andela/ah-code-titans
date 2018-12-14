@@ -11,7 +11,6 @@ class Profile(models.Model):
     """
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    username = models.CharField(max_length=20, blank=False)
     bio = models.TextField(blank=True)
     image = models.URLField(
         blank=True,
@@ -34,7 +33,7 @@ def create_user_profile(sender, instance, created, **kwargs):
     create profile upon user registration.
     """
     if created:
-        Profile.objects.create(user=instance, username=instance.username)
+        Profile.objects.create(user=instance)
 
 
 @receiver(post_save, sender=User)

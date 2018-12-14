@@ -40,6 +40,5 @@ class Authentication(TokenAuthentication):
             payload = jwt.decode(key, secret_key)
             user = get_user_model().objects.get(username=payload["username"])
         except jwt.ExpiredSignatureError:
-            raise exceptions.AuthenticationFailed(
-                'Token has expired please request for another')
+            raise exceptions.AuthenticationFailed('Token has expired please request for another')
         return (user, payload)

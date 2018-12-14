@@ -4,23 +4,15 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
 # local imports
-# from authors.apps.profiles.tests.test_config import TestConfiguration
 from authors.apps.authentication.models import User
 from authors.apps.authentication.token import account_activation_token
 
 
-from rest_framework.test import APIClient
 from django.test import TestCase
 
 
 class TestConfiguration(TestCase):
     """ Configurations for all tests"""
-
-    @classmethod
-    def setUpClass(cls):
-        """ Configurations for entire test suite """
-        super(TestConfiguration, cls).setUpClass()
-        cls.client = APIClient()
 
     def setUp(self):
         """ Configurations for test cases """
@@ -54,11 +46,13 @@ class TestConfiguration(TestCase):
             }
         }
 
+        self.invalid_username = "malone"
+
         self.update_profile = {
             "bio": "Coder",
             "image": "https://d1nhio0ox7pgb.cloudfront.net/_img/o_collection_png/green_dark_grey/512x512/plain/user.png",
             "company": "Call Of Duty",
-            "website": "gabino.com",
+            "website": "https://gabino.com",
             "location": "cape Town",
             "phone": "079000000"
         }

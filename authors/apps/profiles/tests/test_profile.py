@@ -28,8 +28,8 @@ class TestProfile(TestConfiguration):
         Test user can get profile
         """
 
-        self.email_verification(data=self.reg_user)
-        res = self.login(data=self.log_user)
+        self.email_verification(self.reg_user)
+        res = self.login(self.log_user)
         username = res.data['username']
         token = res.data['token']
         url = '/api/profiles/' + username
@@ -57,6 +57,24 @@ class TestProfile(TestConfiguration):
             HTTP_AUTHORIZATION='Token ' + token
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_invalid_user_profile(self):
+        """
+        Test 404 for invalid user
+        """
+
+        self.email_verification(self.reg_user)
+        res = self.login(self.log_user)
+        username = self.invalid_username
+        token = res.data['token']
+        url = '/api/profiles/' + username
+        response = self.client.get(
+            url,
+            content_type='application/json',
+            HTTP_AUTHORIZATION='Token ' + token
+        )
+        self.assertIn(response.data['detail'], 'User profile not found')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_user_can_not_edit_other_user_profile(self):
         """

@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/andela/ah-code-titans.svg?branch=develop)](https://travis-ci.org/andela/ah-code-titans)
 [![Coverage Status](https://coveralls.io/repos/github/andela/ah-code-titans/badge.svg?branch=develop)](https://coveralls.io/github/andela/ah-code-titans?branch=develop)
+[![Maintainability](https://api.codeclimate.com/v1/badges/11df05f07ce5a6836bf1/maintainability)](https://codeclimate.com/github/andela/ah-code-titans/maintainability)
 
 Authors Haven - A Social platform for the creative at heart.
 
