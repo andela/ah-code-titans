@@ -11,14 +11,39 @@ from .models import Article, Comment
 from ..favorite.models import FavouriteArticle
 
 
+class TagListSerializer(serializers.Field):
+    """
+    implementing taglist serializers
+    :param serializer.Writablefield
+    """
+
+    def to_internal_value(self, data):
+        """
+        :param data get list from the client
+        """
+        tag_data = ArticleSerializer().validate_tag_list(data)
+        return tag_data
+
+    def to_representation(self, obj):
+        """
+        :param obj get is a TaggableManager instance
+        converts TaggableManager instance to a list
+        """
+        if type(obj) is not list:
+            return [tag for tag in obj.all()]
+        return obj
+
+
 class ArticleSerializer(serializers.ModelSerializer):
+    tag_list = TagListSerializer(default=[])
     author = serializers.HiddenField(
         default=serializers.CurrentUserDefault()
     )
 
     class Meta:
         model = Article
-        fields = ("title", "description", "body", "author", "time_to_read")
+        fields = ("title", "description", "body",
+                  "author", "tag_list", "time_to_read")
 
     def validate_user_permissions(self, request, data):
         """
@@ -31,6 +56,48 @@ class ArticleSerializer(serializers.ModelSerializer):
             },
                 status=status.HTTP_403_FORBIDDEN
             )
+
+    def validate_tag_list(self, validated_data):
+        if type(validated_data) is not list:
+            raise serializers.ValidationError(
+                RESPONSE['invalid_field'].format("tag_list")
+            )
+
+        for tag in validated_data:
+            if not isinstance(tag, str):
+                raise serializers.ValidationError(
+                    RESPONSE['invalid_field'].format("tag")
+                )
+
+        return validated_data
+
+    def create(self, validated_data, *args):
+        """
+        perform a post save to save tags to database
+        :param validated_data
+        """
+        article = Article(**validated_data)
+        article.save()
+        tags_to = Article.objects.get(pk=article.pk)
+        for tag in article.tag_list:
+            tags_to.tag_list.add(tag)
+        return article
+
+    def update(self, instance, validated_data):
+        """
+        post update method that updates the tag_list field.
+        """
+
+        if 'tag_list' not in validated_data:
+            return instance
+        instance.tag_list = validated_data.get('tag_list')
+        article = Article.objects.get(pk=instance.pk)
+        """
+        The set method updates the current stored article taglist with a new taglist.
+        *instance.tag_list splits the list elements into parameters that are now passed as a new list during updating.
+        """
+        article.tag_list.set(*instance.tag_list, clear=True)
+        return instance
 
     def article_time_to_read(self, data):
         """Method to calculate the total time to read an article
@@ -46,9 +113,9 @@ class ArticleSerializer(serializers.ModelSerializer):
 
 
 class GetArticlesSerializer(serializers.ModelSerializer):
-
     author = serializers.SerializerMethodField()
     favorite = serializers.SerializerMethodField()
+    tag_list = serializers.SerializerMethodField()
 
     class Meta:
         model = Article
@@ -68,9 +135,13 @@ class GetArticlesSerializer(serializers.ModelSerializer):
     def get_favorite(self, slug):
         user = self.context.get('request').user.id
         article = slug.id
-        favorite = FavouriteArticle.objects.filter(user=user, article=article).exists()
+        favorite = FavouriteArticle.objects.filter(
+            user=user, article=article).exists()
 
         return favorite
+
+    def get_tag_list(self, article):
+        return list(article.tag_list.names())
 
 
 class CommentSerializer(serializers.ModelSerializer):

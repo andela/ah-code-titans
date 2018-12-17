@@ -27,10 +27,21 @@ class TestArticles(TestUsingLoggedInUser, TestConfig):
         """
 
         response = self.update_article(
-            self.article_data_2,
+            self.update_article_data,
             self.stored_articles[0].slug
         )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["article"]
+                         ["tag_list"], self.update_article_data["article"]["tag_list"])
 
+    def test_update_article_without_taglist_field(self):
+        """
+        test update article without taglist field
+        """
+        response = self.update_article(
+            self.article_data_no_taglist,
+            self.stored_articles[0].slug
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_update_non_existing_article(self):
@@ -41,7 +52,6 @@ class TestArticles(TestUsingLoggedInUser, TestConfig):
             self.article_data_2,
             "this-is-a-non-existing-slug"
         )
-
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_unauthorized_update_article(self):

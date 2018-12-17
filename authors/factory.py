@@ -3,6 +3,8 @@ from authors.apps.articles.models import Article, Comment
 from authors.apps.authentication.models import User
 from faker import Faker
 
+faker = Faker()
+
 
 def generate_username(*args):
     """ returns a random username """

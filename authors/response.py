@@ -1,5 +1,3 @@
-
-
 RESPONSE = {
     "default": {
         "no_field": "This field is required.",
@@ -31,5 +29,11 @@ RESPONSE = {
         "unfavorited_twice": "You have already unfavorited this article",
         "no_favorites": "You have not favorited any articles",
         "not_found": "Article {} was not found"
+    },
+    "article": {
+        "get_success": "You have successfully retrieved all the articles!",
+        "post_success": "You have successfully posted a new article!",
+        "update_success": "You have successfully updated the article!",
+        "delete_success": "Yoqu have successfully deleted the article!"
     }
 }

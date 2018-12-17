@@ -42,17 +42,6 @@ class Article(models.Model):
 
         super(Article, self).save(*args, **kwargs)
 
-    def json(self):
-        return {
-            "id": self.id,
-            "title": self.title,
-            "description": self.description,
-            "body": self.body,
-            "author": self.author.json(),
-            "created_at": self.createdAt.strftime('%Y-%m-%d %H:%M:%S'),
-            "updated_at": self.updatedAt.strftime('%Y-%m-%d %H:%M:%S'),
-        }
-
 
 class Comment(models.Model):
 
