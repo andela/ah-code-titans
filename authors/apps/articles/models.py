@@ -62,7 +62,6 @@ class Comment(models.Model):
 
     # This is the foreign key that relates this comment to the author, which
     # is a user registered to the app.
-    
     user = models.ForeignKey(User, verbose_name="comment_user", on_delete=models.CASCADE)
 
     # This is the id of the parent comment that this comment replies to.

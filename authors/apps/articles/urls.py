@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import articles, comments
+from .views import articles, comments, share
 from ..rating.views import RateArticleView, GetArticleRatingsView
 
 urlpatterns = [
@@ -16,5 +16,7 @@ urlpatterns = [
     path("articles/<str:slug>/comment/<int:pk>/<int:offset>",
          comments.CommentView.as_view(), name="article_comment_replies"),
     path("article/<str:slug>/rate", RateArticleView.as_view(), name="rate_article"),
-    path("article/<str:slug>/rating", GetArticleRatingsView.as_view(), name="rated_article")
+    path("article/<str:slug>/rating", GetArticleRatingsView.as_view(), name="rated_article"),
+
+    path("article/<str:slug>/share/<str:provider>", share.ShareArticleView.as_view(), name="share_article"),
 ]

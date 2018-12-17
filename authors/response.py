@@ -2,7 +2,6 @@
 
 RESPONSE = {
     "default": {
-
         "no_field": "This field is required.",
         "invalid_field": {
             "int": "A valid integer is required."

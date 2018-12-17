@@ -27,4 +27,3 @@ class TestArticles(TestConfiguration, TestConfig):
         self.assertEqual(query_params, 'limit=10&offset=10')
         self.assertEqual(article_count, 50)
         self.assertEqual(paginated_articles, 10)
-
