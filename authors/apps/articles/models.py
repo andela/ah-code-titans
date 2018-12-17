@@ -1,3 +1,5 @@
+from authors.apps.likedislike.models import ArticleLikeDislike
+from django.contrib.contenttypes.fields import GenericRelation
 from authors.apps.authentication.models import User
 from django.db import models
 from django.template.defaultfilters import slugify
@@ -16,6 +18,7 @@ class Article(models.Model):
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
+    votes = GenericRelation(ArticleLikeDislike, related_query_name='articles')
 
     def __str__(self):
         return f"{self.title}, {self.body}"

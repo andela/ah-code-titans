@@ -47,10 +47,14 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'social_django',
     'taggit',
+
     'authors.apps.authentication',
     'authors.apps.core',
     'authors.apps.profiles',
-    'authors.apps.articles'
+    'authors.apps.followers',
+    'authors.apps.articles',
+    'authors.apps.likedislike',
+    'authors.apps.rating'
 ]
 
 MIDDLEWARE = [

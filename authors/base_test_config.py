@@ -122,6 +122,7 @@ class TestConfiguration(TestCase):
 
     def setUp(self):
         """ Configurations for test cases """
+        
         self.user = {
             "user": {
                 "email": "johndoe@email.com",
