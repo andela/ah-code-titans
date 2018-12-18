@@ -57,7 +57,7 @@ class ArticleView(RetrieveUpdateDestroyAPIView):
         except Article.DoesNotExist:
             raise exceptions.NotFound({
                 "message": "Article was not found"})
-        serializer = GetArticlesSerializer(instance=article)
+        serializer = GetArticlesSerializer(instance=article, context={'request': request})
         return Response(serializer.data, status.HTTP_200_OK)
 
     def put(self, request, slug):
@@ -103,7 +103,7 @@ class GetArticles(ListAPIView):
     """
     get all articles views
     """
-    permission_classes = (AllowAny,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     serializer_class = GetArticlesSerializer
     renderer_classes = (ArticlesJSONRenderer,)
     queryset = Article.objects.all()

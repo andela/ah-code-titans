@@ -186,6 +186,14 @@ class TestConfiguration(TestCase):
             "phone": "079000000"
         }
 
+        self.article = {
+            "article": {
+                "title": "javascript es6",
+                "description": "introduction to es6",
+                "body": "intermedaite js developers"
+            }
+        }
+
     def register(self, data):
         """
         register a user

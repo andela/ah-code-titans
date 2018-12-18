@@ -23,5 +23,13 @@ RESPONSE = {
         "post_success": "You have successfully posted a new comment!",
         "update_success": "You have successfully updated the comment!",
         "delete_success": "You have successfully deleted the comment!"
+    },
+    "favorite": {
+        "favorited": "You have favorited this article",
+        "favorited_twice": "You have already favorited this article",
+        "unfavorited": "You have unfavorited this article",
+        "unfavorited_twice": "You have already unfavorited this article",
+        "no_favorites": "You have not favorited any articles",
+        "not_found": "Article {} was not found"
     }
 }
