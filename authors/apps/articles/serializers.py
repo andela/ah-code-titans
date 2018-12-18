@@ -28,6 +28,27 @@ class ArticleSerializer(serializers.ModelSerializer):
                 status=status.HTTP_403_FORBIDDEN
             )
 
+
+class GetArticlesSerializer(serializers.ModelSerializer):
+
+    author = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Article
+        fields = '__all__'
+
+    def get_author(self, article):
+        author_data = article.author
+        profile = author_data.profile
+        author = {
+            'username': author_data.username,
+            'bio': profile.bio,
+            'image': profile.image,
+        }
+
+        return author
+
+
 class CommentSerializer(serializers.ModelSerializer):
     """
     This serializer class is response for serializing comment

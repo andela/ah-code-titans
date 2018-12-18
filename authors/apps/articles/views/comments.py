@@ -1,101 +1,11 @@
-from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
 from rest_framework.response import Response
 from rest_framework import status, generics
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, AllowAny
-
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from django.shortcuts import get_object_or_404
 
-from .serializers import CommentSerializer, ArticleSerializer
-from .models import Comment, Article
+from ..serializers import CommentSerializer
+from ..models import Comment, Article
 from authors.response import RESPONSE
-
-
-class ArticlesViews(CreateAPIView):
-    """
-    create a new article
-    """
-    permission_classes = (IsAuthenticated,)
-
-    def post(self, request):
-        """
-        post a new article
-        :param request
-        we are creating a  new request context then passing the context in our
-        case the user that is creating an article along
-        with the data in our serializer class
-        """
-        data = request.data.get("article", {})
-        context = {'request': request}
-        serializer = ArticleSerializer(data=data, context=context)
-        if serializer.is_valid():
-            article_data = serializer.save()
-            message = {
-                "message": "article created successfully",
-                "slug": article_data.slug
-            }
-            return Response(message, status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class ArticleView(RetrieveUpdateDestroyAPIView):
-    """
-    get, update, delete a specific article view
-    """
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-
-    def put(self, request, slug):
-        """
-        update a specific article
-        :param slug
-        an author can only update his/her article
-        """
-        article = get_object_or_404(Article.objects.all(), slug=slug)
-        ArticleSerializer().validate_user_permissions(request, article)
-        data = request.data.get("article")
-        serializer = ArticleSerializer(
-            instance=article, data=data, partial=True)
-        serializer.is_valid()
-        serializer.save()
-        return Response({
-            "message": "article updated successfully"
-        },
-            status=status.HTTP_200_OK
-        )
-
-    def delete(self, request, slug):
-        """
-        delete a specific article
-        :param slug
-        an author can only delete his/her article
-        """
-        article = Article.objects.filter(slug=slug)
-
-        if not article:
-            return Response({"Message": f"article {slug} not found"}, status=status.HTTP_404_NOT_FOUND)
-        if request.user.id != article[0].author_id:
-            return Response({
-                "message": "you are not allowed to perform this action"
-            },
-                status=status.HTTP_403_FORBIDDEN
-            )
-        article[0].delete()
-        return Response({"article": "deleted successfully"}, status=status.HTTP_200_OK)
-
-
-class GetArticles(ListAPIView):
-    """
-    get all articles views
-    """
-    permission_classes = (AllowAny,)
-
-    def get(self, request):
-        articles = Article.objects.all()
-        if articles:
-            return Response({
-                "articles": [article.json() for article in articles]
-            }, status.HTTP_200_OK
-            )
-        return Response({"message": "There are no articles currently"}, status.HTTP_404_NOT_FOUND)
 
 
 class CommentsView(generics.ListCreateAPIView):
@@ -120,30 +30,23 @@ class CommentsView(generics.ListCreateAPIView):
         offset = kwargs["offset"]
 
         # This checks if the article slug provided matches any article in the database.
-        if not Article.objects.filter(slug=article_slug).exists():
-            return Response(
-                {
-                    "errors": {
-                        "article": RESPONSE['not_found'].format(data="Article")
-                    }
-                }, status.HTTP_404_NOT_FOUND
-            )
+        article_exists = check_if_article_exists(article_slug)
+
+        if isinstance(article_exists, Response):
+            return article_exists
 
         # This tries to fetch a list of reply comments for the specified comment,
         # from the database. If the comment id provided does not match any in
         # the database, an error 404 response is sent back to the API user.
-        comments = Comment.objects.filter(article__slug=article_slug, parent=0)[
-            offset:page_size]
+        comments = get_comments(
+            article_slug=article_slug,
+            comment_id=0,
+            offset=offset,
+            page_size=page_size
+        )
 
-        if not comments:
-
-            return Response(
-                {
-                    "errors": {
-                        "comments": RESPONSE['not_found'].format(data="Comments")
-                    }
-                }, status.HTTP_404_NOT_FOUND
-            )
+        if isinstance(comments, Response):
+            return comments
 
         return Response(
             {
@@ -213,24 +116,39 @@ class CommentView(generics.RetrieveUpdateDestroyAPIView):
     def get(self, request, *args, **kwargs):
         # We need to get the comment id from the url parameter.
         comment_id = kwargs["pk"]
+        article_slug = kwargs["slug"]
 
         page_size = 20
         offset = kwargs["offset"]
 
+        # This checks if the article slug provided matches any article in the database.
+        article_exists = check_if_article_exists(article_slug)
+
+        if isinstance(article_exists, Response):
+            return article_exists
+
         # This tries to fetch a list of reply comments for the specified comment,
         # from the database. If the comment id provided does not match any in
         # the database, an error 404 response is sent back to the API user.
-        comments = Comment.objects.filter(parent=comment_id)[offset:page_size]
+        comments = get_comments(
+            article_slug=article_slug,
+            comment_id=comment_id,
+            offset=offset,
+            page_size=page_size
+        )
 
-        if not comments:
+        # This tries to fetch a list of reply comments for the specified comment,
+        # from the database. If the comment id provided does not match any in
+        # the database, an error 404 response is sent back to the API user.
+        comments = get_comments(
+            article_slug=article_slug,
+            comment_id=comment_id,
+            offset=offset,
+            page_size=page_size
+        )
 
-            return Response(
-                {
-                    "errors": {
-                        "comments": RESPONSE['not_found'].format(data="Comments")
-                    }
-                }, status.HTTP_404_NOT_FOUND
-            )
+        if isinstance(comments, Response):
+            return comments
 
         return Response(
             {
@@ -251,6 +169,8 @@ class CommentView(generics.RetrieveUpdateDestroyAPIView):
         # We need to get the comment id from the url parameter.
         comment_id = kwargs["pk"]
 
+        error_response = None
+
         # This tries to fetch a comment from the database. If the comment
         # id provided does not match any in the database, an error 404 response
         # is sent back to the API user.
@@ -260,34 +180,28 @@ class CommentView(generics.RetrieveUpdateDestroyAPIView):
         # the comment, and has the authority to update the comment. If this check
         # fails, we inform the user that this action is forbidden.
         if comment.user.id != request.user.id:
-            return Response(
-                {
-                    "user": {
-                        "user": RESPONSE['not_found'].format(data="User")
-                    }
-                }, status.HTTP_403_FORBIDDEN
+            error_response = self.get_error_text_response(
+                'forbidden',
+                status.HTTP_403_FORBIDDEN
             )
 
         # This checks the request body for a text field. This is required to update
         # a comment.
-        if 'text' not in request.data:
-            return Response(
-                {
-                    "errors": {
-                        "text": RESPONSE['no_field'].format('text')
-                    }
-                }, status.HTTP_400_BAD_REQUEST
+        elif 'text' not in request.data:
+            error_response = self.get_error_text_response(
+                'no_field',
+                status.HTTP_400_BAD_REQUEST
             )
 
         # This checks the request body for a non empty value in the text field.
-        if request.data['text'] == "":
-            return Response(
-                {
-                    "errors": {
-                        "text": RESPONSE['empty_field'].format('text')
-                    }
-                }, status.HTTP_400_BAD_REQUEST
+        elif request.data['text'] == "":
+            error_response = self.get_error_text_response(
+                'empty_field',
+                status.HTTP_400_BAD_REQUEST
             )
+
+        if error_response is not None:
+            return Response(error_response['response'], error_response['code'])
 
         # This is responsible for mapping the text value we have provided to the
         # comment text value in order to update the comment.
@@ -351,3 +265,44 @@ class CommentView(generics.RetrieveUpdateDestroyAPIView):
                 "comment": RESPONSE['comment']['delete_success']
             }, 200
         )
+
+    def get_error_text_response(self, error, code):
+        return {
+            "response": {
+                "errors": {
+                    "text": RESPONSE[error].format('text')
+                }
+            },
+            "code": code
+        }
+
+
+def get_comments(**kwargs):
+    comments = Comment.objects.filter(
+        article__slug=kwargs['article_slug'],
+        parent=kwargs['comment_id']
+    )[kwargs['offset']:kwargs['page_size']]
+
+    if not comments:
+        return Response(
+            {
+                "errors": {
+                    "comments": RESPONSE['not_found'].format(data="Comments")
+                }
+            }, status.HTTP_404_NOT_FOUND
+        )
+
+    return comments
+
+
+def check_if_article_exists(article_slug):
+    if not Article.objects.filter(slug=article_slug).exists():
+        return Response(
+            {
+                "errors": {
+                    "article": RESPONSE['not_found'].format(data="Article")
+                }
+            }, status.HTTP_404_NOT_FOUND
+        )
+
+    return True
