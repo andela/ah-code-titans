@@ -1,7 +1,6 @@
-
-from rest_framework.generics import RetrieveAPIView, UpdateAPIView
+from rest_framework.exceptions import NotFound, PermissionDenied
+from rest_framework.generics import ListAPIView, UpdateAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.response import Response
 
 # local imports
@@ -33,6 +32,17 @@ class GetUserProfileView(RetrieveAPIView):
         serializer = self.serializer_class(data, context={'request': request})
 
         return Response(serializer.data)
+
+
+class AuthorsProfileListAPIView(ListAPIView):
+    """
+    Gets a list of authors profiles
+    """
+
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = (ProfileJSONRenderer,)
+    serializer_class = GetProfileSerializer
+    queryset = Profile.objects.all()
 
 
 class UpdateUserProfileView(UpdateAPIView):

@@ -1,9 +1,9 @@
+from django.urls import reverse
 
 from rest_framework import status
 
 # local imports
-# from .test_config import TestConfiguration
-from ..models import Profile
+from authors.apps.profiles.models import Profile
 from authors.base_test_config import TestConfiguration
 
 
@@ -65,7 +65,6 @@ class TestProfile(TestConfiguration):
         self.email_verification(self.reg_user)
         res = self.login(self.log_user)
         username = self.invalid_username
-        
         token = res.data['token']
         url = '/api/profiles/' + username
         response = self.client.get(
@@ -112,3 +111,32 @@ class TestProfile(TestConfiguration):
             HTTP_AUTHORIZATION='Token ' + token
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_all_authors(self):
+        """
+        Test getting a list of authors
+        :return:
+        """
+        self.email_verification(self.reg_user)
+        res = self.login(self.log_user)
+        token = res.data['token']
+        response = self.client.get(
+            reverse('authors_profile'),
+            content_type='application/json',
+            HTTP_AUTHORIZATION='Token ' + token
+        )
+        self.assertEqual(
+            response.data['results'][-1]['username'],
+            self.reg_user['user']['username']
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_all_authors_unauthenticated(self):
+        """
+        Test getting all users when not logged in
+        :return:
+        """
+        response = self.client.get(
+            reverse('authors_profile'),
+            content_type='application/json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
