@@ -18,5 +18,13 @@ class TestArticles(TestConfiguration, TestConfig):
             reverse("all_articles"),
             content_type='application/json',
         )
+        article_count = response.data['count']
+        paginated_articles = len(response.data['results'])
+        next_page_url = response.data['next']
+        query_params = next_page_url.split('?')[-1]
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(query_params, 'limit=10&offset=10')
+        self.assertEqual(article_count, 50)
+        self.assertEqual(paginated_articles, 10)
 
