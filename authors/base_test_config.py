@@ -8,10 +8,12 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
+from faker import Faker
+
 from rest_framework.test import APIClient
 
-from .factory import ArticleFactory, CommentFactory, UserFactory
-from faker import Faker
+from .factory import (ArticleFactory, CommentFactory, CommentHistoryFactory,
+                      UserFactory)
 
 faker = Faker()
 
@@ -129,6 +131,11 @@ class TestConfiguration(TestCase):
                 user=user,
                 article=cls.stored_articles[0]
             )
+        )
+
+        cls.stored_comment_histories = CommentHistoryFactory.create_batch(
+            4,
+            comment=cls.stored_comments[0]
         )
 
     def setUp(self):

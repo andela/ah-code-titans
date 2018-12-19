@@ -45,7 +45,7 @@ class Article(models.Model):
 
 class Comment(models.Model):
 
-    # This is the foreign ket that relates this comment to the article it is commenting on
+    # This is the foreign key that relates this comment to the article it is commenting on
     article = models.ForeignKey(
         Article, verbose_name="comment_article", on_delete=models.CASCADE)
     # article = models.ForeignKey(Article, on_delete=models.CASCADE)
@@ -68,13 +68,16 @@ class Comment(models.Model):
     # This is used to save the last time the comment was updated.
     updated_at = models.DateTimeField(auto_now=True)
 
-    def json(self):
 
-        return {
-            "article": self.article.id,
-            "user": self.user.id,
-            "parent": self.parent,
-            "text": self.text,
-            "created_at": self.created_at.strftime('%Y-%m-%d %H:%M:%S'),
-            "updated_at": self.updated_at.strftime('%Y-%m-%d %H:%M:%S'),
-        }
+class CommentHistory(models.Model):
+
+    # This is the foreign key that relates this comment history log to the
+    # current comment
+    comment = models.ForeignKey(
+        Comment, verbose_name="comment_id", on_delete=models.CASCADE)
+
+    # This is the comment text.
+    text = models.TextField()
+
+    # This is used to save the time at which this comment was created.
+    created_at = models.DateTimeField(auto_now_add=True)

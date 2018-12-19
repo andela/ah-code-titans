@@ -1,5 +1,5 @@
 import factory
-from authors.apps.articles.models import Article, Comment
+from authors.apps.articles.models import Article, Comment, CommentHistory
 from authors.apps.authentication.models import User
 from faker import Faker
 
@@ -41,3 +41,12 @@ class CommentFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Comment
+
+
+class CommentHistoryFactory(factory.django.DjangoModelFactory):
+
+    comment = factory.SubFactory(CommentFactory)
+    text = factory.Faker("sentence", nb_words=25)
+
+    class Meta:
+        model = CommentHistory

@@ -17,6 +17,9 @@ RESPONSE = {
         "replies": {
             "get_success": "You have successfully retrieved all the replies to the comment!"
         },
+        "history": {
+            "get_success": "You have successfully retrieved the edit history of the comment!"
+        },
         "get_success": "You have successfully retrieved all the comments!",
         "post_success": "You have successfully posted a new comment!",
         "update_success": "You have successfully updated the comment!",

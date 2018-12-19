@@ -1,10 +1,11 @@
 from rest_framework.response import Response
 from rest_framework import status, generics
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from django.shortcuts import get_object_or_404
 
-from ..serializers import CommentSerializer
-from ..models import Comment, Article
+from ..serializers import CommentSerializer, CommentHistorySerializer
+from ..models import Comment, Article, CommentHistory
+from ..renderers import CommentHistoryJSONRenderer
 from authors.response import RESPONSE
 
 
@@ -48,9 +49,11 @@ class CommentsView(generics.ListCreateAPIView):
         if isinstance(comments, Response):
             return comments
 
+        serializer = CommentSerializer(comments, many=True)
+
         return Response(
             {
-                "comments": [comment.json() for comment in comments],
+                "comments": serializer.data,
                 "offset": {
                     "next": offset + len(comments),
                     "previous": offset
@@ -140,9 +143,11 @@ class CommentView(generics.RetrieveUpdateDestroyAPIView):
         if isinstance(comments, Response):
             return comments
 
+        serializer = CommentSerializer(comments, many=True)
+
         return Response(
             {
-                "comments": [comment.json() for comment in comments],
+                "comments": serializer.data,
                 "offset": {
                     "next": offset + len(comments),
                     "previous": offset
@@ -212,7 +217,7 @@ class CommentView(generics.RetrieveUpdateDestroyAPIView):
 
         # This is responsible for saving the current comment data, thus updating
         # the comment.
-        comment.save()
+        comment_serializer.save()
 
         return Response(
             {
@@ -265,6 +270,16 @@ class CommentView(generics.RetrieveUpdateDestroyAPIView):
             },
             "code": code
         }
+
+
+class CommentHistoryView(generics.ListAPIView):
+
+    permission_classes = (IsAuthenticated,)
+    serializer_class = CommentHistorySerializer
+    renderer_classes = [CommentHistoryJSONRenderer]
+
+    def get_queryset(self):
+        return CommentHistory.objects.filter(comment=self.kwargs['pk'])
 
 
 def get_comments(**kwargs):
