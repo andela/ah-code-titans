@@ -137,16 +137,6 @@ class CommentView(generics.RetrieveUpdateDestroyAPIView):
             page_size=page_size
         )
 
-        # This tries to fetch a list of reply comments for the specified comment,
-        # from the database. If the comment id provided does not match any in
-        # the database, an error 404 response is sent back to the API user.
-        comments = get_comments(
-            article_slug=article_slug,
-            comment_id=comment_id,
-            offset=offset,
-            page_size=page_size
-        )
-
         if isinstance(comments, Response):
             return comments
 

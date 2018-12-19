@@ -11,6 +11,9 @@ from django.utils.http import urlsafe_base64_encode
 from rest_framework.test import APIClient
 
 from .factory import ArticleFactory, CommentFactory, UserFactory
+from faker import Faker
+
+faker = Faker()
 
 
 class TestConfiguration(TestCase):
@@ -101,6 +104,14 @@ class TestConfiguration(TestCase):
             50,
             author=user
         )
+
+        article = ArticleFactory(
+            author=user,
+            body=faker.paragraphs(nb=25)
+        )
+
+        cls.stored_articles.append(article)
+
         # This block of code generates a couple of comments, in which the
         # latter block are reply comments of the first comment we generate.
         # These comments are commenting the article we have jsut created,

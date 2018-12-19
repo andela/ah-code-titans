@@ -1,3 +1,6 @@
+import numpy
+import re
+
 from authors.apps.authentication.models import User
 from authors.response import RESPONSE
 from rest_framework.response import Response
@@ -14,7 +17,7 @@ class ArticleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Article
-        fields = ("title", "description", "body", "author")
+        fields = ("title", "description", "body", "author", "time_to_read")
 
     def validate_user_permissions(self, request, data):
         """
@@ -27,6 +30,18 @@ class ArticleSerializer(serializers.ModelSerializer):
             },
                 status=status.HTTP_403_FORBIDDEN
             )
+
+    def article_time_to_read(self, data):
+        """Method to calculate the total time to read an article
+        """
+        # Find all text that has < and > and on that replace with empty string
+        clear_body = re.compile('<.*?>')
+        clean_body = re.sub(clear_body, '', data.get('body'))
+        total_words = data.get('description') + ' ' + clean_body
+
+        time_to_read = len(total_words.split()) / 180
+
+        return (numpy.rint(time_to_read))
 
 
 class GetArticlesSerializer(serializers.ModelSerializer):

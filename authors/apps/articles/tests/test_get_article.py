@@ -25,5 +25,5 @@ class TestArticles(TestConfiguration, TestConfig):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(query_params, 'limit=10&offset=10')
-        self.assertEqual(article_count, 50)
+        self.assertEqual(article_count, 51)
         self.assertEqual(paginated_articles, 10)

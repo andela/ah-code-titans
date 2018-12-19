@@ -14,6 +14,7 @@ class Article(models.Model):
     title = models.CharField(max_length=50)
     description = models.TextField()
     body = models.TextField()
+    time_to_read = models.IntegerField(default=0)
     tag_list = TaggableManager(blank=True)
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True)
@@ -65,7 +66,7 @@ class Comment(models.Model):
     user = models.ForeignKey(User, verbose_name="comment_user", on_delete=models.CASCADE)
 
     # This is the id of the parent comment that this comment replies to.
-    # This is optional and set to 0 as the default. This is to create a 
+    # This is optional and set to 0 as the default. This is to create a
     # threaded comment system.
     parent = models.IntegerField(default=0)
 
