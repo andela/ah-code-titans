@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import articles, comments, share
+from .views import articles, comments, share, filters
 from ..rating.views import RateArticleView, GetArticleRatingsView
 from ...apps.favorite.views import FavoriteView, GetAllFavorites
 
@@ -20,5 +20,9 @@ urlpatterns = [
     path("article/<str:slug>/rating", GetArticleRatingsView.as_view(), name="rated_article"),
     path("article/<str:slug>/share/<str:provider>", share.ShareArticleView.as_view(), name="share_article"),
     path("article/<str:slug>/favorite", FavoriteView.as_view(), name="favorite"),
-    path("articles/all/favorites", GetAllFavorites.as_view(), name="favorites")
+    path("articles/all/favorites", GetAllFavorites.as_view(), name="favorites"),
+
+    # Paths for search and filter
+    path("search/articles/", filters.ArticleSearchListAPIView.as_view(), name="search"),
+    path("tag/articles/", filters.ArticleTagSearchAPIView.as_view(), name="search_by_tag"),
 ]
