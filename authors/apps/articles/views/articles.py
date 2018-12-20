@@ -8,6 +8,8 @@ from ..serializers import ArticleSerializer, GetArticlesSerializer
 from ..renderers import ArticlesJSONRenderer
 from ..models import Article
 
+from authors.apps.read_stats.models import UserReadStat
+
 
 class ArticlesViews(CreateAPIView):
     """
@@ -61,7 +63,18 @@ class ArticleView(RetrieveUpdateDestroyAPIView):
         except Article.DoesNotExist:
             raise exceptions.NotFound({
                 "message": "Article was not found"})
-        serializer = GetArticlesSerializer(instance=article, context={'request': request})
+        # save an instance of user access to an article to db
+        if request.user.id:
+            if not UserReadStat.objects.filter(user=request.user, article=article).exists():
+                user_read_stat = UserReadStat(
+                    user=request.user,
+                    article=article
+                )
+                user_read_stat.save()
+
+        serializer = GetArticlesSerializer(
+            instance=article, context={'request': request})
+
         return Response(serializer.data, status.HTTP_200_OK)
 
     def put(self, request, slug):
