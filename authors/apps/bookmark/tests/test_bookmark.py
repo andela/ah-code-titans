@@ -3,13 +3,15 @@ from rest_framework import status
 from django.urls import reverse
 
 # local imports
-from ..models import FavouriteArticle
+from ..models import BookmarkArticle
 from authors.base_test_config import TestUsingLoggedInUser
 
+from authors.response import RESPONSE
 
-class TestFavorite(TestUsingLoggedInUser):
+
+class TestBookmark(TestUsingLoggedInUser):
     """
-    Test favoriting functionality
+    Test bookmarking functionality
     """
 
     def post_article(self, data):
@@ -21,131 +23,126 @@ class TestFavorite(TestUsingLoggedInUser):
         )
         return response
 
-    def test_favorite_model_creates_an_instanse(self):
+    def test_user_cannot_bookmark_un_existing_articles(self):
+        """
+        Test user cannot bookmark or unbookmark article that do not exist
+        """
+
+        self.post_article(self.article)
+        slug = "bookmark"
+
+        response = self.client.post(
+            '/api/article/{slug}/bookmark'.format(slug=slug),
+            content_type='application/json',
+            HTTP_AUTHORIZATION='Token ' + self.access_token
+        )
+        response2 = self.client.delete(
+            '/api/article/{slug}/bookmark'.format(slug=slug),
+            content_type='application/json',
+            HTTP_AUTHORIZATION='Token ' + self.access_token
+        )
+
+        self.assertIn(response.data['message'], RESPONSE['article_not_found'].format(data=slug))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertIn(response2.data['message'], RESPONSE['article_not_found'].format(data=slug))
+        self.assertEqual(response2.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_bookmark_model(self):
         """"
         test model can create user profile upon successful sign up
         """
 
-        initial_count = FavouriteArticle.objects.count()
+        initial_count = BookmarkArticle.objects.count()
         res2 = self.post_article(self.article)
         slug = res2.data['slug']
-
-        url = '/api/article/{slug}/favorite'.format(slug=slug)
+        
         self.client.post(
-            url,
+            '/api/article/{slug}/bookmark'.format(slug=slug),
             content_type='application/json',
             HTTP_AUTHORIZATION='Token ' + self.access_token
         )
-        new_count = FavouriteArticle.objects.count()
+        new_count = BookmarkArticle.objects.count()
         self.assertNotEqual(initial_count, new_count)
 
-    def test_user_can_favorite_article(self):
+    def test_user_can_bookmark_article(self):
         """
-        Test user can favorite an article
+        Test user can bookmark an article
         """
 
         res2 = self.post_article(self.article)
         slug = res2.data['slug']
 
-        url = '/api/article/{slug}/favorite'.format(slug=slug)
         response = self.client.post(
-            url,
+            '/api/article/{slug}/bookmark'.format(slug=slug),
             content_type='application/json',
             HTTP_AUTHORIZATION='Token ' + self.access_token
         )
 
         response2 = self.client.post(
-            url,
+            '/api/article/{slug}/bookmark'.format(slug=slug),
             content_type='application/json',
             HTTP_AUTHORIZATION='Token ' + self.access_token
         )
 
-        self.assertIn(response.data['message'], 'You have favorited this article')
+        self.assertIn(response.data['message'], RESPONSE['bookmark']['bookmarked'].format(data=slug))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn(response2.data['message'], 'You have already favorited this article')
+        self.assertIn(response2.data['message'], RESPONSE['bookmark']['repeat_bookmarking'])
         self.assertEqual(response2.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_user_can_unfavorite_article(self):
+    def test_user_can_unbookmark_article(self):
         """
-        Test user can unfavorite an article
+        Test user can unfbookmark an article
         """
 
         res2 = self.post_article(self.article)
         slug = res2.data['slug']
 
-        url = '/api/article/{slug}/favorite'.format(slug=slug)
         self.client.post(
-            url,
+            '/api/article/{slug}/bookmark'.format(slug=slug),
             content_type='application/json',
             HTTP_AUTHORIZATION='Token ' + self.access_token
         )
         response = self.client.delete(
-            url,
+            '/api/article/{slug}/bookmark'.format(slug=slug),
             content_type='application/json',
             HTTP_AUTHORIZATION='Token ' + self.access_token
         )
 
         response2 = self.client.delete(
-            url,
+            '/api/article/{slug}/bookmark'.format(slug=slug),
             content_type='application/json',
             HTTP_AUTHORIZATION='Token ' + self.access_token
         )
 
-        self.assertIn(response.data['message'], 'You have unfavorited this article')
+        self.assertIn(response.data['message'], RESPONSE['bookmark']['unbookmarked'].format(data=slug))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertIn(response2.data['message'], 'You have already unfavorited this article')
+        self.assertIn(response2.data['message'], RESPONSE['bookmark']['repeat_unbookmarking'])
         self.assertEqual(response2.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_user_can_get_favorited_articles(self):
+    def test_user_can_retrive_bookmarked_articles(self):
         """
-        Test user can get all favorited articles
+        Test user can retrive all bookmarked articles
         """
 
         res2 = self.post_article(self.article)
         slug = res2.data['slug']
 
-        url = '/api/articles/all/favorites'
         response = self.client.get(
-            url,
+            '/api/articles/all/bookmarks',
             content_type='application/json',
             HTTP_AUTHORIZATION='Token ' + self.access_token
         )
         self.client.post(
-            '/api/article/{slug}/favorite'.format(slug=slug),
+            '/api/article/{slug}/bookmark'.format(slug=slug),
             content_type='application/json',
             HTTP_AUTHORIZATION='Token ' + self.access_token
         )
         response2 = self.client.get(
-            url,
+            '/api/articles/all/bookmarks',
             content_type='application/json',
             HTTP_AUTHORIZATION='Token ' + self.access_token
         )
 
-        self.assertIn(response.data['message'], 'You have not favorited any articles')
+        self.assertIn(response.data['message'], RESPONSE['bookmark']['no_bookmarks'])
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response2.status_code, status.HTTP_200_OK)
-
-    def test_user_cannot_favorited_un_existing_articles(self):
-        """
-        Test user cannot favorite or unfavorite article that do not exist
-        """
-
-        self.post_article(self.article)
-        slug = "scrrr"
-
-        url = '/api/article/{slug}/favorite'.format(slug=slug)
-        response = self.client.post(
-            url,
-            content_type='application/json',
-            HTTP_AUTHORIZATION='Token ' + self.access_token
-        )
-        response2 = self.client.delete(
-            url,
-            content_type='application/json',
-            HTTP_AUTHORIZATION='Token ' + self.access_token
-        )
-
-        self.assertIn(response.data['message'], 'Article {slug} was not found'.format(slug=slug))
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        self.assertIn(response2.data['message'], 'Article {slug} was not found'.format(slug=slug))
-        self.assertEqual(response2.status_code, status.HTTP_404_NOT_FOUND)

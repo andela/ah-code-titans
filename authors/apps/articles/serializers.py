@@ -9,6 +9,7 @@ from rest_framework import serializers
 
 from .models import Article, Comment
 from ..favorite.models import FavouriteArticle
+from ..bookmark.models import BookmarkArticle
 
 
 class TagListSerializer(serializers.Field):
@@ -116,6 +117,7 @@ class GetArticlesSerializer(serializers.ModelSerializer):
     author = serializers.SerializerMethodField()
     favorite = serializers.SerializerMethodField()
     tag_list = serializers.SerializerMethodField()
+    bookmarked = serializers.SerializerMethodField()
 
     class Meta:
         model = Article
@@ -142,6 +144,13 @@ class GetArticlesSerializer(serializers.ModelSerializer):
 
     def get_tag_list(self, article):
         return list(article.tag_list.names())
+
+    def get_bookmarked(self, instance):
+        user = self.context.get('request').user.id
+        bookmarked = BookmarkArticle.objects.filter(
+            user=user, bookmark=instance.slug).exists()
+
+        return bookmarked
 
 
 class CommentSerializer(serializers.ModelSerializer):
