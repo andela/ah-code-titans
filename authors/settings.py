@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'social_django',
     'taggit',
+    'django_filters',
 
     'authors.apps.authentication',
     'authors.apps.core',
@@ -57,7 +58,9 @@ INSTALLED_APPS = [
     'authors.apps.likedislike',
     'authors.apps.rating',
     'authors.apps.favorite',
-    'authors.apps.read_stats'
+    'authors.apps.read_stats',
+    'authors.apps.bookmark'
+
 ]
 
 MIDDLEWARE = [

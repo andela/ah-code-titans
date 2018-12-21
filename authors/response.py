@@ -13,9 +13,13 @@ RESPONSE = {
     "empty_field": "You have provided an empty {} field!",
     "not_found": "{data} not found! Please ensure you have provided the valid {data} id!",
     "forbidden": "You are not authorized to continue with this action!",
+    "article_not_found": "Article {data} was not found",
     "comment": {
         "replies": {
             "get_success": "You have successfully retrieved all the replies to the comment!"
+        },
+        "history": {
+            "get_success": "You have successfully retrieved the edit history of the comment!"
         },
         "get_success": "You have successfully retrieved all the comments!",
         "post_success": "You have successfully posted a new comment!",
@@ -35,5 +39,12 @@ RESPONSE = {
         "post_success": "You have successfully posted a new article!",
         "update_success": "You have successfully updated the article!",
         "delete_success": "Yoqu have successfully deleted the article!"
-    }
+    },
+    "bookmark": {
+        "bookmarked": "Bookmarking article {data} was successful",
+        "repeat_bookmarking": "You have already bookmarked this article",
+        "unbookmarked": "Unbookmarking article {data} was successful",
+        "repeat_unbookmarking": "You have already unbookmarked this article",
+        "no_bookmarks": "You have not bookmarked any articles"
+    },
 }

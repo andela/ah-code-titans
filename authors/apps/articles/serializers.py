@@ -7,8 +7,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import serializers
 
-from .models import Article, Comment
+from .models import Article, Comment, CommentHistory
 from ..favorite.models import FavouriteArticle
+from ..bookmark.models import BookmarkArticle
 
 
 class TagListSerializer(serializers.Field):
@@ -116,6 +117,7 @@ class GetArticlesSerializer(serializers.ModelSerializer):
     author = serializers.SerializerMethodField()
     favorite = serializers.SerializerMethodField()
     tag_list = serializers.SerializerMethodField()
+    bookmarked = serializers.SerializerMethodField()
 
     class Meta:
         model = Article
@@ -142,6 +144,13 @@ class GetArticlesSerializer(serializers.ModelSerializer):
 
     def get_tag_list(self, article):
         return list(article.tag_list.names())
+
+    def get_bookmarked(self, instance):
+        user = self.context.get('request').user.id
+        bookmarked = BookmarkArticle.objects.filter(
+            user=user, bookmark=instance.slug).exists()
+
+        return bookmarked
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -186,6 +195,28 @@ class CommentSerializer(serializers.ModelSerializer):
             # the current `Comment` instance one at a time.
             setattr(instance, key, value)
 
+        old_comment = Comment.objects.get(pk=instance.id)
+
+        comment_history = CommentHistory(
+            comment=old_comment,
+            text=validated_data['text']
+        )
+
         # This saves all the changes specified in the validated data, into the
         # database
+        comment_history.save()
+
         instance.save()
+
+        return instance
+
+
+class CommentHistorySerializer(serializers.ModelSerializer):
+    """
+    This serializer class is response for serializing comment history
+    data provided by the user.
+    """
+
+    class Meta:
+        model = CommentHistory
+        fields = '__all__'
