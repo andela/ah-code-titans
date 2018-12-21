@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'social_django',
     'taggit',
+    'django_filters',
 
     'authors.apps.authentication',
     'authors.apps.core',
