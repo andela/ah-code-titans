@@ -27,10 +27,10 @@ urlpatterns = [
     path('api/', include('authors.apps.authentication.urls')),
     path('api/', include('authors.apps.followers.urls')),
     path('api/', include('authors.apps.profiles.urls')),
+    path('api/', include('authors.apps.articles.urls')),
+    path('api/', include('authors.apps.likedislike.urls')),
+    path('api/', include('authors.apps.read_stats.urls')),
     path('oauth/', include('social_django.urls', namespace='social')),
     path('home', GeneralRoutes.home, name="home"),
     path('privacy', GeneralRoutes.privacy, name="privacy"),
-    path('api/', include('authors.apps.articles.urls')),
-    path('api/', include('authors.apps.likedislike.urls')),
-    path('api/', include('authors.apps.read_stats.urls'))
 ]

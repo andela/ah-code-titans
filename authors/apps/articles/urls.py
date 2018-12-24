@@ -3,7 +3,8 @@ from django.urls import path
 from .views import articles, comments, share, filters
 from ..rating.views import RateArticleView, GetArticleRatingsView
 from ...apps.favorite.views import FavoriteView, GetAllFavorites
-from ...apps.bookmark.views import BookmarkArticleView, GetAllBoookmarksView
+from authors.apps.bookmark.views import BookmarkListAPIView, BookmarkArticleCreateDestroyAPIView
+
 
 urlpatterns = [
     path("articles/", articles.ArticlesViews.as_view(), name="articles"),
@@ -26,9 +27,8 @@ urlpatterns = [
     path("article/<str:slug>/share/<str:provider>", share.ShareArticleView.as_view(), name="share_article"),
     path("article/<str:slug>/favorite", FavoriteView.as_view(), name="favorite"),
     path("articles/all/favorites", GetAllFavorites.as_view(), name="favorites"),
-    path("article/<str:slug>/bookmark", BookmarkArticleView.as_view(), name="bookmark"),
-    path("articles/all/bookmarks", GetAllBoookmarksView.as_view(), name="all_bookmarks"),
-  
+    path("article/<str:slug>/bookmark", BookmarkArticleCreateDestroyAPIView.as_view(), name="bookmark"),
+    path("articles/all/bookmarks", BookmarkListAPIView.as_view(), name="all_bookmarks"),
     # Paths for search and filter
     path("search/articles/", filters.ArticleSearchListAPIView.as_view(), name="search"),
     path("tag/articles/", filters.ArticleTagSearchAPIView.as_view(), name="search_by_tag"),

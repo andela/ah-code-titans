@@ -67,7 +67,7 @@ class TestFollowUnfollowUser(TestCase):
             'email': 'janedoe@email.com'
         }
     }
-    
+
     def setUp(self):
         super(TestFollowUnfollowUser, self).setUp()
         self.email_verification(self.followed)

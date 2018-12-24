@@ -3,7 +3,7 @@ from rest_framework import status
 from django.urls import reverse
 
 # local imports
-from ..models import BookmarkArticle
+from authors.apps.bookmark.models import Bookmark
 from authors.base_test_config import TestUsingLoggedInUser
 
 from authors.response import RESPONSE
@@ -52,7 +52,7 @@ class TestBookmark(TestUsingLoggedInUser):
         test model can create user profile upon successful sign up
         """
 
-        initial_count = BookmarkArticle.objects.count()
+        initial_count = Bookmark.objects.count()
         res2 = self.post_article(self.article)
         slug = res2.data['slug']
         
@@ -61,7 +61,7 @@ class TestBookmark(TestUsingLoggedInUser):
             content_type='application/json',
             HTTP_AUTHORIZATION='Token ' + self.access_token
         )
-        new_count = BookmarkArticle.objects.count()
+        new_count = Bookmark.objects.count()
         self.assertNotEqual(initial_count, new_count)
 
     def test_user_can_bookmark_article(self):
@@ -126,12 +126,12 @@ class TestBookmark(TestUsingLoggedInUser):
 
         res2 = self.post_article(self.article)
         slug = res2.data['slug']
-
         response = self.client.get(
             '/api/articles/all/bookmarks',
             content_type='application/json',
             HTTP_AUTHORIZATION='Token ' + self.access_token
         )
+
         self.client.post(
             '/api/article/{slug}/bookmark'.format(slug=slug),
             content_type='application/json',
@@ -143,6 +143,5 @@ class TestBookmark(TestUsingLoggedInUser):
             HTTP_AUTHORIZATION='Token ' + self.access_token
         )
 
-        self.assertIn(response.data['message'], RESPONSE['bookmark']['no_bookmarks'])
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response2.status_code, status.HTTP_200_OK)
