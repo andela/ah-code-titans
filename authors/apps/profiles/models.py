@@ -19,7 +19,7 @@ class Profile(models.Model):
     company = models.CharField(max_length=100, blank=True)
     website = models.URLField(max_length=100, blank=True)
     location = models.CharField(max_length=250, blank=True)
-    phone = models.CharField(max_length=20, blank=True)
+    phone = models.CharField(max_length=30, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

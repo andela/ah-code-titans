@@ -41,10 +41,12 @@ class ArticleSerializer(serializers.ModelSerializer):
         default=serializers.CurrentUserDefault()
     )
 
+    image = serializers.CharField(max_length=None, required=False)
+
     class Meta:
         model = Article
         fields = ("title", "description", "body",
-                  "author", "tag_list", "time_to_read")
+                  "author", "tag_list", "time_to_read", "image")
 
     def validate_user_permissions(self, request, data):
         """

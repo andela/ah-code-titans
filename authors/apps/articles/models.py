@@ -14,6 +14,7 @@ class Article(models.Model):
     title = models.CharField(max_length=50)
     description = models.TextField()
     body = models.TextField()
+    image = models.TextField(default="https://picsum.photos/1024/768/?random")
     time_to_read = models.IntegerField(default=0)
     tag_list = TaggableManager(blank=True)
     createdAt = models.DateTimeField(auto_now_add=True)
