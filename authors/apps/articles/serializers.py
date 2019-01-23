@@ -153,6 +153,23 @@ class GetArticlesSerializer(serializers.ModelSerializer):
         return bookmarked
 
 
+class CreateCommentSerializer(serializers.ModelSerializer):
+    article = serializers.PrimaryKeyRelatedField(
+        queryset=Article.objects.all()
+    )
+
+    # This is the parent comment id this comment may potentially be replying
+    # to. This is optional.
+    parent = serializers.IntegerField()
+
+    # This is the comment body
+    text = serializers.CharField(max_length=None, required=True)
+
+    class Meta:
+        fields = '__all__'
+        model = Comment
+
+
 class CommentSerializer(serializers.ModelSerializer):
     """
     This serializer class is response for serializing comment
@@ -164,9 +181,7 @@ class CommentSerializer(serializers.ModelSerializer):
     )
 
     # This relates the comment to the author of the comment
-    user = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all()
-    )
+    user = serializers.SerializerMethodField()
 
     # This is the parent comment id this comment may potentially be replying
     # to. This is optional.
@@ -177,7 +192,8 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ['parent', 'text', 'article', 'user']
+        fields = ['id', 'parent', 'text', 'article',
+                  'user', 'created_at', 'updated_at']
 
     def validate_text(self, validated_data):
 
@@ -187,6 +203,17 @@ class CommentSerializer(serializers.ModelSerializer):
             )
 
         return validated_data
+
+    def get_user(self, data):
+        user = data.user
+        profile = user.profile
+        author = {
+            'username': user.username,
+            'company': profile.company,
+            'image': profile.image,
+        }
+
+        return author
 
     def update(self, instance, validated_data):
 

@@ -3,7 +3,7 @@ from rest_framework import status, generics
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from django.shortcuts import get_object_or_404
 
-from ..serializers import CommentSerializer, CommentHistorySerializer
+from ..serializers import CommentSerializer, CommentHistorySerializer, CreateCommentSerializer
 from ..models import Comment, Article, CommentHistory
 from ..renderers import CommentHistoryJSONRenderer
 from authors.response import RESPONSE
@@ -80,7 +80,8 @@ class CommentsView(generics.ListCreateAPIView):
 
         # We initialize a comment serializer in order to run validations on the comment
         # data provided.
-        comment_serializer = CommentSerializer(data=comment)
+
+        comment_serializer = CreateCommentSerializer(data=comment)
 
         # This runs a validation check on the comment data provided. If it fails, it sends
         # an error response informing the API user of the field causing the error and how
@@ -286,7 +287,7 @@ def get_comments(**kwargs):
     comments = Comment.objects.filter(
         article__slug=kwargs['article_slug'],
         parent=kwargs['comment_id']
-    )[kwargs['offset']:kwargs['page_size']]
+    )[kwargs['offset']:kwargs['offset'] + kwargs['page_size']]
 
     if not comments:
         return Response(
