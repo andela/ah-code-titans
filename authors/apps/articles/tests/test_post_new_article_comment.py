@@ -30,7 +30,8 @@ class TestPostNewArticleComment(TestUsingLoggedInUser):
     def test_using_no_text_field(self):
         self.comment.pop('text')
 
-        response = self.post_comment(self.comment, self.stored_articles[0].slug)
+        response = self.post_comment(
+            self.comment, self.stored_articles[0].slug)
 
         self.assertEqual(
             response.status_code,
@@ -45,7 +46,8 @@ class TestPostNewArticleComment(TestUsingLoggedInUser):
     def test_using_empty_text_field(self):
         self.comment['text'] = ""
 
-        response = self.post_comment(self.comment, self.stored_articles[0].slug)
+        response = self.post_comment(
+            self.comment, self.stored_articles[0].slug)
 
         self.assertEqual(
             response.status_code,
@@ -60,7 +62,8 @@ class TestPostNewArticleComment(TestUsingLoggedInUser):
     def test_using_no_parent_field(self):
         self.comment.pop('parent')
 
-        response = self.post_comment(self.comment, self.stored_articles[0].slug)
+        response = self.post_comment(
+            self.comment, self.stored_articles[0].slug)
 
         self.assertEqual(
             response.status_code,
@@ -75,7 +78,8 @@ class TestPostNewArticleComment(TestUsingLoggedInUser):
     def test_using_invalid_parent_id(self):
         self.comment['parent'] = 'ro'
 
-        response = self.post_comment(self.comment, self.stored_articles[0].slug)
+        response = self.post_comment(
+            self.comment, self.stored_articles[0].slug)
 
         self.assertEqual(
             response.status_code,
@@ -101,7 +105,8 @@ class TestPostNewArticleComment(TestUsingLoggedInUser):
         )
 
     def test_using_valid_data(self):
-        response = self.post_comment(self.comment, self.stored_articles[0].slug)
+        response = self.post_comment(
+            self.comment, self.stored_articles[0].slug)
 
         self.assertEqual(
             response.status_code,
