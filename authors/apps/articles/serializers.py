@@ -2,6 +2,7 @@ import numpy
 import re
 
 from authors.apps.authentication.models import User
+from authors.apps.likedislike.models import ArticleLikeDislike
 from authors.response import RESPONSE
 from rest_framework.response import Response
 from rest_framework import status
@@ -120,6 +121,9 @@ class GetArticlesSerializer(serializers.ModelSerializer):
     favorite = serializers.SerializerMethodField()
     tag_list = serializers.SerializerMethodField()
     bookmarked = serializers.SerializerMethodField()
+    liked = serializers.SerializerMethodField()
+    likes = serializers.SerializerMethodField()
+    dislikes = serializers.SerializerMethodField()
 
     class Meta:
         model = Article
@@ -153,6 +157,23 @@ class GetArticlesSerializer(serializers.ModelSerializer):
             user=user, bookmark=instance.slug).exists()
 
         return bookmarked
+
+    def get_liked(self, article):
+        user = self.context.get('request').user.id
+        article_id = article.id
+        liked = ArticleLikeDislike.objects.filter(
+            object_id=article_id, user_id=user
+        ).exists()
+
+        return liked
+
+    def get_likes(self, article):
+        likes = article.votes.likes().count()
+        return likes
+
+    def get_dislikes(self, article):
+        dislikes = article.votes.dislikes().count()
+        return dislikes
 
 
 class CreateCommentSerializer(serializers.ModelSerializer):
