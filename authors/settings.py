@@ -207,7 +207,8 @@ CORS_ORIGIN_WHITELIST = (
     '0.0.0.0:4000',
     'localhost:4000',
     'localhost:3000',
-    'https://authors-haven-ct-staging.herokuapp.com/'
+    'authors-haven-ct-staging.herokuapp.com',
+    'authors-haven-ct.herokuapp.com'
 )
 
 # Tell Django about the custom `User` model we created. The string
