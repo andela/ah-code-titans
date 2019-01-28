@@ -122,6 +122,7 @@ class GetArticlesSerializer(serializers.ModelSerializer):
     tag_list = serializers.SerializerMethodField()
     bookmarked = serializers.SerializerMethodField()
     liked = serializers.SerializerMethodField()
+    disliked = serializers.SerializerMethodField()
     likes = serializers.SerializerMethodField()
     dislikes = serializers.SerializerMethodField()
 
@@ -162,10 +163,19 @@ class GetArticlesSerializer(serializers.ModelSerializer):
         user = self.context.get('request').user.id
         article_id = article.id
         liked = ArticleLikeDislike.objects.filter(
-            object_id=article_id, user_id=user
+            object_id=article_id, user_id=user, vote=+1
         ).exists()
 
         return liked
+
+    def get_disliked(self, article):
+        user = self.context.get('request').user.id
+        article_id = article.id
+        disliked = ArticleLikeDislike.objects.filter(
+            object_id=article_id, user_id=user, vote=-1
+        ).exists()
+
+        return disliked
 
     def get_likes(self, article):
         likes = article.votes.likes().count()
