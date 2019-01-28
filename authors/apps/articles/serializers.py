@@ -42,11 +42,12 @@ class ArticleSerializer(serializers.ModelSerializer):
     )
 
     image = serializers.CharField(max_length=None, required=False)
+    slug = serializers.CharField(max_length=None, required=False)
 
     class Meta:
         model = Article
         fields = ("title", "description", "body",
-                  "author", "tag_list", "time_to_read", "image")
+                  "author", "tag_list", "time_to_read", "image", "slug")
 
     def validate_user_permissions(self, request, data):
         """
@@ -94,6 +95,9 @@ class ArticleSerializer(serializers.ModelSerializer):
             return instance
 
         tag_list = validated_data.pop('tag_list', None)
+
+        # pop the slug
+        validated_data.pop('slug', None)
 
         for (key, value) in validated_data.items():
             setattr(instance, key, value)
