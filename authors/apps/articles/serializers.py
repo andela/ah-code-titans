@@ -90,16 +90,18 @@ class ArticleSerializer(serializers.ModelSerializer):
         """
         post update method that updates the tag_list field.
         """
-
         if 'tag_list' not in validated_data:
             return instance
-        instance.tag_list = validated_data.get('tag_list')
-        article = Article.objects.get(pk=instance.pk)
-        """
-        The set method updates the current stored article taglist with a new taglist.
-        *instance.tag_list splits the list elements into parameters that are now passed as a new list during updating.
-        """
-        article.tag_list.set(*instance.tag_list, clear=True)
+
+        tag_list = validated_data.pop('tag_list', None)
+
+        for (key, value) in validated_data.items():
+            setattr(instance, key, value)
+
+        instance.tag_list.set(*tag_list, clear=True)
+        instance.save()
+
+        instance.tag_list = tag_list
         return instance
 
     def article_time_to_read(self, data):
