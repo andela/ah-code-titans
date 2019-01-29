@@ -84,14 +84,17 @@ class ArticleView(RetrieveUpdateDestroyAPIView):
         an author can only update his/her article
         """
         article = get_object_or_404(Article.objects.all(), slug=slug)
-        ArticleSerializer().validate_user_permissions(request, article)
-        data = request.data.get("article")
+        response = ArticleSerializer().validate_user_permissions(request, article)
 
+        if isinstance(response, Response):
+            return response
+
+        data = request.data.get("article")
         time_to_read = ArticleSerializer().article_time_to_read(data)
         data['time_to_read'] = time_to_read
 
-        serializer = ArticleSerializer(
-            instance=article, data=data, partial=True)
+        serializer = ArticleSerializer(instance=article, data=data, partial=True)
+
         if serializer.is_valid():
             serializer.save()
             return Response({
