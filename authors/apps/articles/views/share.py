@@ -1,3 +1,4 @@
+import os
 from rest_framework.response import Response
 from rest_framework import status, generics, exceptions
 from rest_framework.permissions import IsAuthenticated
@@ -45,9 +46,10 @@ class ShareArticleView(generics.RetrieveAPIView):
         # This builds a link for a user on a social media website to redirect to the
         # specified article on the Authors Haven platform.
         article_url = request.build_absolute_uri(
-            reverse("article", kwargs={
-                "slug": article.slug
-            })
+            "{}article/{}".format(
+                os.getenv("FRONTEND"),
+                article.slug
+            )
         )
 
         share_link = self.get_link(context, provider, article, article_url)
