@@ -242,9 +242,17 @@ class SocialAuthView(RetrieveAPIView):
             if '_auth_user_id' in request.session:
                 user = User.objects.get(id=request.session['_auth_user_id'])
 
-                return redirect("{}social/auth?success=true&username={}&new_user=false".format(
+                return redirect("{}social/auth?success=true&username={}&new_user=false&t1={}&t2={}".format(
                     os.getenv("FRONTEND"),
-                    user.username
+                    user.username,
+                    Authentication.generate_jwt_token(
+                        user=user.json(),
+                        refresh_token=False
+                    ),
+                    Authentication.generate_jwt_token(
+                        user=user.json(),
+                        refresh_token=True
+                    )
                 ))
             else:
                 redirect("/api/auth/social/error")
@@ -265,9 +273,17 @@ class SocialAuthNewUserView(RetrieveAPIView):
             if '_auth_user_id' in request.session:
                 user = User.objects.get(id=request.session['_auth_user_id'])
 
-                return redirect("{}social/auth/social/auth?success=true&username={}&new_user=true".format(
+                return redirect("{}social/auth/social/auth?success=true&username={}&new_user=true&t1={}&t2={}".format(
                     os.getenv("FRONTEND"),
-                    user.username
+                    user.username,
+                    Authentication.generate_jwt_token(
+                        user=user.json(),
+                        refresh_token=False
+                    ),
+                    Authentication.generate_jwt_token(
+                        user=user.json(),
+                        refresh_token=True
+                    )
                 ))
 
             else:
