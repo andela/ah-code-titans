@@ -30,6 +30,7 @@ class Command(BaseCommand):
 
         new_users = [new_user]
         new_users += UserFactory.build_batch(12)
+
         stored_users = []
 
         for user in new_users:
@@ -38,7 +39,7 @@ class Command(BaseCommand):
             # generating the hashed password.
 
             user.set_password(user.password)
-            try: 
+            try:
                 user.save()
             except IntegrityError:
                 print("{} user already exists!".format(user.username))
@@ -48,7 +49,10 @@ class Command(BaseCommand):
 
             user.profile.bio = profile.bio
             user.profile.website = profile.website
-            user.profile.image = profile.image
+            user.profile.image = "https://randomuser.me/api/portraits/{}/{}.jpg".format(
+                random.choice(["men", "women"]),
+                random.choice([x for x in range(100)])
+            )
             user.profile.company = profile.company
             user.profile.location = profile.location
             user.profile.phone = profile.phone
@@ -56,27 +60,25 @@ class Command(BaseCommand):
 
             stored_users.append(user)
 
-        user = stored_users[0]
-
         # This generates a new article with the author of the article
         # as the user we have just created. We store it in this variable,
         # so we have access to the article details in the test cases.
-        stored_articles = ArticleFactory.create_batch(
-            50,
-            author=random.choice(stored_users)
-        )
 
-        article = ArticleFactory(
-            author=user,
-            body=faker.paragraphs(nb=25)
-        )
+        stored_articles = []
 
-        stored_articles.append(article)
+        for i in range(300):
+            article = ArticleFactory(
+                author=random.choice(stored_users),
+                image="https://picsum.photos/1024/768/?image={}".format(
+                    random.choice([x for x in range(865, 1081)])
+                ))
+
+            stored_articles.append(article)
 
         # This block of code generates a couple of comments, in which the
         # latter block are reply comments of the first comment we generate.
         # These comments are commenting the article we have jsut created,
-        
+
         TAGS = [
             "CULTURE",
             "MUSIC",
@@ -87,7 +89,10 @@ class Command(BaseCommand):
             "POLITICS",
             "DESIGN",
             "HEALTH",
-            "SCIENCE"
+            "SCIENCE",
+            "FOOD",
+            "JAVASCRIPT",
+            "MOVIES"
         ]
 
         for article in stored_articles:

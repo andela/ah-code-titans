@@ -1,4 +1,5 @@
 import factory
+
 from authors.apps.articles.models import Article, Comment, CommentHistory
 from authors.apps.authentication.models import User
 from authors.apps.profiles.models import Profile
@@ -26,7 +27,6 @@ class UserFactory(factory.django.DjangoModelFactory):
 class UserProfileFactory(factory.django.DjangoModelFactory):
     user = factory.SubFactory(UserFactory)
     bio = factory.Faker("sentence", nb_words=25)
-    image = "https://picsum.photos/100/100/?random"
     company = factory.Faker("company")
     website = factory.Faker("hostname")
     location = factory.Faker("city")
