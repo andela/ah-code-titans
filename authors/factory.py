@@ -40,8 +40,8 @@ class ArticleFactory(factory.django.DjangoModelFactory):
 
     author = factory.SubFactory(UserFactory)
     title = factory.Faker('sentence', nb_words=4)
-    description = factory.Faker('paragraphs', nb=1)
-    body = factory.Faker('paragraphs', nb=5)
+    description = factory.Faker('paragraph', nb_sentences=3)
+    body = factory.Faker('text', max_nb_chars=10000)
 
     class Meta:
         model = Article

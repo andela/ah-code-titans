@@ -109,7 +109,7 @@ class TestConfiguration(TestCase):
 
         article = ArticleFactory(
             author=user,
-            body=faker.paragraphs(nb=25)
+            body=faker.sentence(nb_words=200)
         )
 
         cls.stored_articles.append(article)
@@ -286,3 +286,4 @@ class TestUsingLoggedInUser(TestConfiguration):
         # This saves the access token we receive into a variable we can
         # access in the test cases.
         cls.access_token = response.data['token']
+        cls.refresh_token = response.data['refresh_token']

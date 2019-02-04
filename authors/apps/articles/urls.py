@@ -31,5 +31,4 @@ urlpatterns = [
     path("articles/all/bookmarks", BookmarkListAPIView.as_view(), name="all_bookmarks"),
     # Paths for search and filter
     path("search/articles/", filters.ArticleSearchListAPIView.as_view(), name="search"),
-    path("tag/articles/", filters.ArticleTagSearchAPIView.as_view(), name="search_by_tag"),
 ]

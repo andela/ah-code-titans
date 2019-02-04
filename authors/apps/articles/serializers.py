@@ -119,7 +119,7 @@ class ArticleSerializer(serializers.ModelSerializer):
         clean_body = re.sub(clear_body, '', data.get('body'))
         total_words = data.get('description') + ' ' + clean_body
 
-        time_to_read = len(total_words.split()) / 180
+        time_to_read = len(total_words.split()) / 100
 
         return (numpy.rint(time_to_read))
 

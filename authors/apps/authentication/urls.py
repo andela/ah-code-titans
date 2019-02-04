@@ -3,7 +3,7 @@ from django.urls import path
 from .views import (
     LoginAPIView, RegistrationAPIView, UserRetrieveUpdateAPIView,
     RequestResetAPIView, ResetPasswordAPIView, ActivateAccountAPIView, SocialAuthView,
-    SocialAuthErrorView, SocialAuthNewUserView
+    SocialAuthErrorView, SocialAuthNewUserView, RefreshTokenAPIView
 )
 
 
@@ -11,6 +11,7 @@ urlpatterns = [
     path('user/', UserRetrieveUpdateAPIView.as_view()),
     path('users/', RegistrationAPIView.as_view(), name="create_user"),
     path('users/login', LoginAPIView.as_view(), name="user_login"),
+    path('token/refresh', RefreshTokenAPIView.as_view(), name="token_refresh"),
     path("resetrequest", RequestResetAPIView.as_view(), name="reset_request"),
     path("change_password/<str:token>",
          ResetPasswordAPIView.as_view(), name='reset_password'),

@@ -17,13 +17,17 @@ class Authentication(TokenAuthentication):
     @staticmethod
     def generate_jwt_token(user, refresh_token=False):
         """ method to generate token """
+        exp_time = datetime.datetime.utcnow() + datetime.timedelta(weeks=1)
+
+        if(not refresh_token):
+            exp_time = datetime.datetime.utcnow() + datetime.timedelta(weeks=1)
 
         token = jwt.encode({
             "username": user["username"],
             "refresh_token": refresh_token,
             "iat": datetime.datetime.utcnow(),
             'nbf': datetime.datetime.utcnow() + datetime.timedelta(minutes=-5),
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60)
+            'exp': exp_time
         }, secret_key)
         token = str(token, 'utf-8')
         return token

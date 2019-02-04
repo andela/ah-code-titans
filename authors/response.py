@@ -47,4 +47,10 @@ RESPONSE = {
         "repeat_unbookmarking": "You have already unbookmarked this article",
         "no_bookmarks": "You have not bookmarked any articles"
     },
+    "token": {
+        "refresh": {
+            "invalid": "You have not provided a valid refresh token!",
+            "valid": "You have successfully refreshed the access token!"
+        }
+    }
 }
