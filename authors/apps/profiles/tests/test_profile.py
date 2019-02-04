@@ -125,6 +125,7 @@ class TestProfile(TestConfiguration):
             content_type='application/json',
             HTTP_AUTHORIZATION='Token ' + token
         )
+
         self.assertEqual(
             response.data['results'][-1]['username'],
             self.reg_user['user']['username']

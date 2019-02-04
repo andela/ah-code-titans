@@ -92,7 +92,7 @@ class TestSearchFilter(TestUsingLoggedInUser, TestConfig):
         self.create_article(self.article_data)
         tag = self.article_data['article']['tag_list'][0]
         response = self.client.get(
-            '/api/tag/articles/?tags={}'.format(tag),
+            '/api/search/articles/?tags={}'.format(tag),
             content_type='application/json')
 
         # Test response status
@@ -100,20 +100,3 @@ class TestSearchFilter(TestUsingLoggedInUser, TestConfig):
 
         # Test response data
         self.assertIn(tag, response.data['results'][0]['tag_list'])
-
-    def test_search_article_by_empty_tag(self):
-        """
-        Method to test for article search by tag name
-        when tag value is missing
-        """
-        self.create_article(self.article_data)
-
-        response = self.client.get(
-            "/api/tag/articles/?tags=",
-            content_type='application/json')
-        # Test response status
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        # Test length of response data
-        # All articles should be returned if no tag is provided
-        self.assertEqual(response.data.get('count'), 0)

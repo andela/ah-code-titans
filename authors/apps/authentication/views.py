@@ -21,6 +21,7 @@ from .renderers import UserJSONRenderer
 from .serializers import (LoginSerializer, RegistrationSerializer,
                           ResetSerializer, UserSerializer)
 from .token import account_activation_token
+from authors.response import RESPONSE
 
 
 class RegistrationAPIView(CreateAPIView):
@@ -98,6 +99,26 @@ class LoginAPIView(CreateAPIView):
         serializer.is_valid(raise_exception=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class RefreshTokenAPIView(RetrieveAPIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        if not request.auth["refresh_token"]:
+            return Response({
+                "message": RESPONSE["token"]["refresh"]["invalid"]
+            }, status=status.HTTP_401_UNAUTHORIZED)
+
+        access_token = Authentication.generate_jwt_token(
+            user=request.user.json(),
+            refresh_token=False
+        )
+
+        return Response({
+            "message": RESPONSE["token"]["refresh"]["valid"],
+            "access_token": access_token
+        }, status=status.HTTP_200_OK)
 
 
 class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
