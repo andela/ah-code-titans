@@ -1,21 +1,28 @@
-from rest_framework.generics import CreateAPIView, DestroyAPIView, ListAPIView
+from rest_framework import status
+from rest_framework.generics import (
+    CreateAPIView,
+    DestroyAPIView,
+    ListAPIView
+)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import status
 
-# local imports
-from .serializers import BookmarkSerializer
-from ..articles.models import Article
-from .models import BookmarkArticle
+from authors.apps.articles.models import Article
+from authors.apps.articles.serializers import GetArticlesSerializer
+from authors.apps.bookmark.models import Bookmark
+from authors.apps.bookmark.renderers import BookmarksJSONRenderer
+from authors.apps.bookmark.serializers import BookmarkSerializer
 from authors.response import RESPONSE
 
 
-class BookmarkArticleView(CreateAPIView, DestroyAPIView):
-    """
-    Bookmarking articles.
-    """
+class BookmarkArticleCreateDestroyAPIView(CreateAPIView, DestroyAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = BookmarkSerializer
+    renderer_classes = (BookmarksJSONRenderer,)
+
+    class Meta:
+        model = Bookmark
+        fields = ('user', 'article',)
 
     def post(self, request, slug):
         """
@@ -29,14 +36,14 @@ class BookmarkArticleView(CreateAPIView, DestroyAPIView):
         if isinstance(to_bookmark, Response):
             return to_bookmark
 
-        bookmarked = BookmarkArticle.objects.filter(user=self.request.user.id, bookmark=slug).exists()
+        bookmarked = Bookmark.objects.filter(user=self.request.user.id, slug=slug).exists()
         if bookmarked is True:
             return Response(
                 {"message": RESPONSE['bookmark']['repeat_bookmarking']},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        data = {"user": request.user.id, "bookmark": slug}
+        data = {"user": request.user.id, "slug": slug}
         serializer = self.serializer_class(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -57,7 +64,7 @@ class BookmarkArticleView(CreateAPIView, DestroyAPIView):
         if isinstance(to_unbookmark, Response):
             return to_unbookmark
 
-        bookmarked = BookmarkArticle.objects.filter(user=self.request.user.id, bookmark=slug).exists()
+        bookmarked = Bookmark.objects.filter(user=self.request.user.id, slug=slug).exists()
         if bookmarked is False:
             message = {"message": RESPONSE['bookmark']['repeat_unbookmarking']}
             return Response(
@@ -65,7 +72,7 @@ class BookmarkArticleView(CreateAPIView, DestroyAPIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        instance = BookmarkArticle.objects.filter(user=self.request.user.id, bookmark=slug)
+        instance = Bookmark.objects.filter(user=self.request.user.id, slug=slug)
         self.perform_destroy(instance)
 
         message = {"message": RESPONSE['bookmark']['unbookmarked'].format(data=slug)}
@@ -73,27 +80,20 @@ class BookmarkArticleView(CreateAPIView, DestroyAPIView):
         return Response(message, status=status.HTTP_204_NO_CONTENT)
 
 
-class GetAllBoookmarksView(ListAPIView):
-    """
-    get all bookmarked articles by current user 
-    """
+class BookmarkListAPIView(ListAPIView):
     permission_classes = (IsAuthenticated,)
-    serializer_class = BookmarkSerializer
+    serializer_class = GetArticlesSerializer
+    renderer_classes = (BookmarksJSONRenderer,)
 
-    def get(self, request):
-        """
-        only authenticated users can view bookmarks
-        """
-        article_to_bookmark = BookmarkArticle.objects.filter(user_id=self.request.user.id)
+    def get_queryset(self):
+        article_to_bookmark = Bookmark.objects.filter(user_id=self.request.user.pk)
 
-        if len(article_to_bookmark) == 0:
-            return Response(
-                {"message": RESPONSE['bookmark']['no_bookmarks']},
-                status=status.HTTP_200_OK
-            )
+        if not article_to_bookmark:
+            return []
 
-        serializer = self.serializer_class(instance=article_to_bookmark, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        slugs = Bookmark.objects.filter(user_id=self.request.user.id).values_list('slug', flat=True)
+        articles = Article.objects.filter(slug__in=slugs)
+        return articles
 
 
 def check_article(slug):

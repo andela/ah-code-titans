@@ -14,7 +14,7 @@ class RateArticleSerializer(serializers.Serializer):
 
     class Meta:
         model = RateArticle
-        fields = ['user_rating','article_id','user_id']
+        fields = ['user_rating', 'article_id', 'user_id']
 
     def get_article_to_rate(self, slug):
         """
