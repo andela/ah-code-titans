@@ -4,10 +4,12 @@ import re
 from authors.apps.authentication.models import User
 from authors.apps.likedislike.models import ArticleLikeDislike
 from authors.apps.bookmark.models import Bookmark
+from authors.apps.rating.models import RateArticle
 from authors.response import RESPONSE
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import serializers
+from django.db.models import Avg
 
 from .models import Article, Comment, CommentHistory
 from ..favorite.models import FavouriteArticle
@@ -131,6 +133,7 @@ class GetArticlesSerializer(serializers.ModelSerializer):
     disliked = serializers.SerializerMethodField()
     likes = serializers.SerializerMethodField()
     dislikes = serializers.SerializerMethodField()
+    rating = serializers.SerializerMethodField()
 
     class Meta:
         model = Article
@@ -188,6 +191,17 @@ class GetArticlesSerializer(serializers.ModelSerializer):
     def get_dislikes(self, article):
         dislikes = article.votes.dislikes().count()
         return dislikes
+
+    def get_rating(self, article):
+        article_id = article.id
+        try:
+            rating = RateArticle.objects.filter(article_id=article_id).values()
+        except RateArticle.DoesNotExist:
+            average_rating = 0
+        finally:
+            average_rating = rating.aggregate(Avg('user_rating'))
+            average_rating = average_rating['user_rating__avg']
+            return average_rating
 
 
 class CreateCommentSerializer(serializers.ModelSerializer):
