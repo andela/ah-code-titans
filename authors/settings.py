@@ -24,7 +24,14 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("APP_DEBUG")
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    '0.0.0.0',
+    '127.0.0.1',
+    'localhost',
+    'ah-codetitans.herokuapp.com',
+    'ah-codetitans-staging.herokuapp.com',
+    '192.168.33.14'
+    ]
 
 # Application definition
 
@@ -196,8 +203,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-
-CORS_ORIGIN_WHITELIST = ('*')
+CORS_ORIGIN_ALLOW_ALL = True
 
 # Tell Django about the custom `User` model we created. The string
 # `authentication.User` tells Django we are referring to the `User` model in
